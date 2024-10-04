@@ -1,7 +1,7 @@
 ﻿using System;
 namespace AI_Medical_Chatbot
 {
-	public class UserService : IUserService
+	public class UserService : UserService_I
 	{
 		private readonly List<User> Users = new List<User>();
 

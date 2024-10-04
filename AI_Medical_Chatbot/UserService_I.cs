@@ -5,12 +5,11 @@ using System.Threading.Tasks;
 
 namespace AI_Medical_Chatbot
 {
-    public interface IUserService
+    public interface UserService_I
     {
         void RegisterUser(string username, int userID);
         User GetUser(int userID)
         {
-            // Method body goes here
             throw new NotImplementedException();
         }
     }

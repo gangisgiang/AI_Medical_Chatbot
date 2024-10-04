@@ -11,6 +11,14 @@ namespace AI_Medical_Chatbot
 	{
 		private static int convoCount = 0;
 		public List<Conversation> ConversationList { get; set; } = new List<Conversation>();
+		private static readonly DatabaseService databaseService = new DatabaseService();
+
+		public ChatComponent(DatabaseService databaseService)
+		{
+			databaseService =  databaseService;
+			// Load conversations from the database
+			LoadConversations();
+		}
 		public void AskChatbot(User user, string text)
 		{
 			// Send message to the chatbot
@@ -46,6 +54,22 @@ namespace AI_Medical_Chatbot
 				convoCount++;
 				ConversationList.Add(convo);
 				Console.WriteLine(convo.ConvoName + " created.");
+			}
+		}
+
+		public void SaveConversations()
+		{
+			string json = JsonSerializer.Serialize(ConversationList);
+			File.WriteAllText("conversations.json", json);
+		}
+
+		public void LoadConversations()
+		{
+			if (File.Exists("conversations.json"))
+			{
+				string json = File.ReadAllText("conversations.json");
+				ConversationList = JsonSerializer.Deserialize<List<Conversation>>(json);
+				convoCount = ConversationList.Count;
 			}
 		}
 
