@@ -5,16 +5,15 @@ namespace AI_Medical_Chatbot
 	{
 		public string Username { get; set; }
 		public int UserID { get; set; }
-		public int convoID = 1;
 		public List<Message> MessagesHistory { get; set; } = new List<Message>();
-		public Conversation ConversationList { get; set; }
+		public List<Conversation> ConversationList { get; set; } = new List<Conversation>();
 		private static int convoCount = 0;
 
 		public User(string name, int userID)
 		{
 			Username = name;
 			UserID = userID;
-			ConversationList = new Conversation(convoID);
+			CreateNewConvo();
 		}
 
 		public void AskChatbot(string text)
@@ -29,7 +28,8 @@ namespace AI_Medical_Chatbot
 			};
 
 			MessagesHistory.Add(message);
-			ConversationList.AddMessage(message);
+			// Add message to the latest conversation
+			ConversationList[convoCount - 1].AddMessage(message);
 		}
 
 		public void ChatbotAnswer(string text)
@@ -44,7 +44,35 @@ namespace AI_Medical_Chatbot
 			};
 
 			MessagesHistory.Add(message);
-			ConversationList.AddMessage(message);
+			ConversationList[convoCount - 1].AddMessage(message);
+		}
+
+		public void CreateNewConvo()
+		{
+			if (convoCount == 0)
+			{
+				// Create the initial conversation
+				Conversation initialConvo = new Conversation(convoCount, "Conversation");
+				convoCount++;
+				ConversationList.Add(initialConvo);
+			}
+			else
+			{
+				// Create a new conversation
+				Conversation convo = new Conversation(convoCount, "Conversation " + "(" + convoCount + ")");
+				convoCount++;
+				ConversationList.Add(convo);
+			}
+		}
+
+		public void DisplayConvo()
+		{
+			// Display the messages in the chosen conversation
+			foreach (Conversation convo in ConversationList)
+			{
+				Console.WriteLine("--- " + convo.ConvoName + " ---");
+				convo.DisplayMessages();
+			}	
 		}
 	}
 }

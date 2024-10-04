@@ -4,11 +4,13 @@ namespace AI_Medical_Chatbot
 	public class Conversation
 	{
 		public int ConvoID { get; set; }
+		public string ConvoName { get; set; }
 		public List<Message> Messages { get; set; } = new List<Message>();
 
-		public Conversation(int convoID)
+		public Conversation(int convoID, string convoName)
 		{
 			ConvoID = convoID;
+			ConvoName = convoName;
 		}
 
 		public void AddMessage(Message message)
@@ -24,12 +26,6 @@ namespace AI_Medical_Chatbot
 			{
 				message.Sender();
 			}
-		}
-
-		// Increase the conversation ID
-		public void NewConvo()
-		{
-			ConvoID++;
 		}
 	}
 }
