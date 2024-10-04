@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+
 namespace AI_Medical_Chatbot
 {
 	public class User
@@ -62,7 +64,26 @@ namespace AI_Medical_Chatbot
 				Conversation convo = new Conversation(convoCount, "Conversation " + "(" + convoCount + ")");
 				convoCount++;
 				ConversationList.Add(convo);
+				Console.WriteLine(convo.ConvoName + " created.");
 			}
+		}
+
+		public void RenameConvo(int convoIndex, string newName)
+		{
+			if (convoCount == 0)
+			{
+				Console.WriteLine("No conversation to rename.");
+				return;
+			}
+
+			if (convoIndex < 0 || convoIndex >= convoCount)
+			{
+				Console.WriteLine("Invalid conversation index.");
+				return;
+			}
+
+			// Rename the conversation
+			ConversationList[convoCount - 1].ConvoName = newName;
 		}
 
 		public void DisplayConvo()
