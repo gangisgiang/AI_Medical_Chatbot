@@ -17,27 +17,19 @@ namespace AI_Medical_Chatbot
 			Messages.Add(message);
 		}
 
-		public void DisplayConversation()
+		// Display the message in the conversation
+		public void DisplayMessages()
 		{
-			// Display the conversation
 			foreach (Message message in Messages)
 			{
 				message.Sender();
 			}
 		}
 
-		public void ChatbotResponse(string text)
+		// Increase the conversation ID
+		public void NewConvo()
 		{
-			// Send message to the user
-			Message message = new Message(text, 0, 1)
-			{
-				SenderID = 0,
-				ReceiverID = 1,
-				Text = text,
-				Time = DateTime.Now
-			};
-
-			Messages.Add(message);
+			ConvoID++;
 		}
 	}
 }
