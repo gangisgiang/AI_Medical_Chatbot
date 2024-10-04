@@ -30,4 +30,3 @@ namespace AI_Medical_Chatbot
 		}
 	}
 }
-
