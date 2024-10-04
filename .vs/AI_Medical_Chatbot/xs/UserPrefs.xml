@@ -1,0 +1,33 @@
+﻿<Properties StartupConfiguration="{A3F5E60C-2447-474A-A8FA-6E21F6636E37}|Default">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.ItemProperties.AI__Medical__Chatbot PreferredExecutionTarget="MonoDevelop.Default" FirstBuild="True" />
+  <MultiItemStartupConfigurations />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.Workbench ActiveDocument="AI_Medical_Chatbot/Conversation.cs">
+    <Files>
+      <File FileName="AI_Medical_Chatbot/Program.cs" Line="1" Column="1" />
+      <File FileName="AI_Medical_Chatbot/User.cs" Line="1" Column="1" />
+      <File FileName="AI_Medical_Chatbot/UserService.cs" Line="1" Column="1" />
+      <File FileName="AI_Medical_Chatbot/ChatComponent.cs" Line="1" Column="1" />
+      <File FileName="AI_Medical_Chatbot/MessageProcessor.cs" Line="1" Column="1" />
+      <File FileName="AI_Medical_Chatbot/Message.cs" Line="1" Column="1" />
+      <File FileName="AI_Medical_Chatbot/DatabaseService.cs" Line="1" Column="1" />
+      <File FileName="AI_Medical_Chatbot/AIFramework.cs" Line="1" Column="1" />
+      <File FileName="AI_Medical_Chatbot/Conversation.cs" Line="1" Column="1" />
+    </Files>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State name="__root__">
+          <Node name="AI_Medical_Chatbot" expanded="True">
+            <Node name="AI_Medical_Chatbot" expanded="True">
+              <Node name="Conversation.cs" selected="True" />
+            </Node>
+          </Node>
+        </State>
+      </Pad>
+    </Pads>
+  </MonoDevelop.Ide.Workbench>
+</Properties>
