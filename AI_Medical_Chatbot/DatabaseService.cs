@@ -8,56 +8,24 @@ namespace AI_Medical_Chatbot
 {
 	public class DatabaseService
 	{
-		private readonly string UsersPath = "users.json";
-		private List<User> Users = new List<User>();
-		public DatabaseService()
+		private readonly string ConvoPath = "conversations.json";
+
+		// Save the conversations to the database
+		public void SaveConversations(List<Conversation> conversations)
 		{
-			// Load users from the database
-			LoadUsers();
+			string json = JsonSerializer.Serialize(conversations);
+			File.WriteAllText(ConvoPath, json);
 		}
 
-		public void RegisterUser(string username, int userID)
+		// Load the conversations from the database
+		public List<Conversation> LoadConversations()
 		{
-			// if the user is already registered, return
-			foreach (User existingUser in Users)
+			if (File.Exists(ConvoPath))
 			{
-				if (existingUser.UserID == userID)
-				{
-					Console.WriteLine("User " + existingUser.Username + " is already registered.");
-					return;
-				}
+				string json = File.ReadAllText(ConvoPath);
+				return JsonSerializer.Deserialize<List<Conversation>>(json);
 			}
-
-			User user = new User(username, userID);
-			Users.Add(user);
-			Console.WriteLine("User " + user.Username + " has been registered.");
-			SaveUsers();
-		}
-		private void SaveUsers()
-		{
-			string json = JsonSerializer.Serialize(Users);
-			File.WriteAllText(UsersPath, json);
-		}
-
-		public User GetUser(int userID)
-		{
-			foreach (User user in Users)
-			{
-				if (user.UserID == userID)
-				{
-					return user;
-				}
-			}
-			return null;
-		}
-
-		private void LoadUsers()
-		{
-			if (File.Exists(UsersPath))
-			{
-				string json = File.ReadAllText(UsersPath);
-				Users = JsonSerializer.Deserialize<List<User>>(json);
-			}
+			return new List<Conversation>();
 		}
 	}
 }

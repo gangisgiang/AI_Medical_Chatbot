@@ -9,16 +9,19 @@ namespace AI_Medical_Chatbot
 {
 	public class ChatComponent
 	{
-		private static int convoCount = 0;
+		private int convoCount = 0;
 		public List<Conversation> ConversationList { get; set; } = new List<Conversation>();
-		private static readonly DatabaseService databaseService = new DatabaseService();
+		private readonly DatabaseService databaseService = new DatabaseService();
+		private const string convoCountFile = "convoCount.txt";
 
-		public ChatComponent(DatabaseService databaseService)
+		public ChatComponent(DatabaseService dbService)
 		{
-			databaseService =  databaseService;
+			databaseService = dbService;
 			// Load conversations from the database
 			LoadConversations();
+			LoadConvoCount();
 		}
+
 		public void AskChatbot(User user, string text)
 		{
 			// Send message to the chatbot
@@ -46,6 +49,7 @@ namespace AI_Medical_Chatbot
 				Conversation initialConvo = new Conversation(convoCount, "Conversation");
 				convoCount++;
 				ConversationList.Add(initialConvo);
+				SaveConvoCount();
 			}
 			else
 			{
@@ -54,6 +58,7 @@ namespace AI_Medical_Chatbot
 				convoCount++;
 				ConversationList.Add(convo);
 				Console.WriteLine(convo.ConvoName + " created.");
+				SaveConvoCount();
 			}
 		}
 
@@ -70,6 +75,40 @@ namespace AI_Medical_Chatbot
 				string json = File.ReadAllText("conversations.json");
 				ConversationList = JsonSerializer.Deserialize<List<Conversation>>(json);
 				convoCount = ConversationList.Count;
+			}
+		}
+
+		public void SaveConvoCount()
+		{
+			File.WriteAllText(convoCountFile, convoCount.ToString());
+		}
+
+		public void LoadConvoCount()
+		{
+			if (File.Exists(convoCountFile))
+			{
+				string count = File.ReadAllText(convoCountFile);
+				convoCount = int.Parse(count);
+			}
+		}
+
+		public async Task FetchData(string apiURL, string json)
+		{
+			using (HttpClient client = new HttpClient())
+			{
+				try
+				{
+					StringContent content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+					HttpResponseMessage response = await client.PostAsync(apiURL, content);
+					response.EnsureSuccessStatusCode();
+					string responseBody = await response.Content.ReadAsStringAsync();
+					Console.WriteLine(responseBody);
+				}
+				catch (HttpRequestException e)
+				{
+					Console.WriteLine("\nException Caught!");
+					Console.WriteLine("Message :{0} ", e.Message);
+				}
 			}
 		}
 
