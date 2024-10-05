@@ -73,7 +73,7 @@ namespace AI_Medical_Chatbot
 			if (File.Exists("conversations.json"))
 			{
 				string json = File.ReadAllText("conversations.json");
-				ConversationList = JsonSerializer.Deserialize<List<Conversation>>(json);
+				ConversationList = JsonSerializer.Deserialize<List<Conversation>>(json) ?? new List<Conversation>();
 				convoCount = ConversationList.Count;
 			}
 		}

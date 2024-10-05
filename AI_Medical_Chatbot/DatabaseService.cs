@@ -23,7 +23,8 @@ namespace AI_Medical_Chatbot
 			if (File.Exists(ConvoPath))
 			{
 				string json = File.ReadAllText(ConvoPath);
-				return JsonSerializer.Deserialize<List<Conversation>>(json);
+				var conversations = JsonSerializer.Deserialize<List<Conversation>>(json);
+				return conversations ?? new List<Conversation>();
 			}
 			return new List<Conversation>();
 		}
