@@ -11,12 +11,12 @@ namespace AI_Medical_Chatbot
 	{
 		private int convoCount = 0;
 		public List<Conversation> ConversationList { get; set; } = new List<Conversation>();
-		private readonly DatabaseService databaseService = new DatabaseService();
+		private readonly DatabaseConvoService databaseconvoService = new DatabaseConvoService();
 		private const string convoCountFile = "convoCount.txt";
 
-		public ChatComponent(DatabaseService dbService)
+		public ChatComponent(DatabaseConvoService dbService)
 		{
-			databaseService = dbService;
+			databaseconvoService = dbService;
 			// Load conversations from the database
 			LoadConversations();
 			LoadConvoCount();

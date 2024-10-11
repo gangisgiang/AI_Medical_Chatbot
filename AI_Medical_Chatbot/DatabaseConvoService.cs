@@ -6,18 +6,16 @@ using System.Text.Json.Serialization;
 
 namespace AI_Medical_Chatbot
 {
-	public class DatabaseService
+	public class DatabaseConvoService
 	{
 		private readonly string ConvoPath = "conversations.json";
 
-		// Save the conversations to the database
 		public void SaveConversations(List<Conversation> conversations)
 		{
 			string json = JsonSerializer.Serialize(conversations);
 			File.WriteAllText(ConvoPath, json);
 		}
 
-		// Load the conversations from the database
 		public List<Conversation> LoadConversations()
 		{
 			if (File.Exists(ConvoPath))
