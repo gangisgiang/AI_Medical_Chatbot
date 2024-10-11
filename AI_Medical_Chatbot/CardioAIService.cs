@@ -44,13 +44,13 @@ namespace AI_Medical_Chatbot
             Append(mlContext.Clustering.Trainers.KMeans("Features", numberOfClusters: 5));
 
             var model = pipeline.Fit(dataView);
-            var predictionEngine = mlContext.Model.CreatePredictionEngine<TopicData, TopicPrediction>(model);
+            var predictionEngine = mlContext.Model.CreatePredictionEngine<TopicData, ClusterPrediction>(model);
             
             // Cluster the input and predict the cluster
             var inputTopic = new TopicData { Topic = input };
             var prediction = predictionEngine.Predict(inputTopic);
 
-            switch (prediction.PredictedClusterLabel)
+            switch (prediction.PredictedLabel)
             {
                 case 1:
                     return "heart disease";
@@ -77,7 +77,7 @@ namespace AI_Medical_Chatbot
         public class ClusterPrediction
         {
             [ColumnName("PredictedLabel")]
-            public uint PredictedClusterId;
+            public uint PredictedLabel;
             public float[] Score;
         }
     }
