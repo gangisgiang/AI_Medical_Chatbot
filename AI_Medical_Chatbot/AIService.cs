@@ -14,15 +14,15 @@ namespace AI_Medical_Chatbot
 		// Fetch data from the API
 		protected async Task<string> FetchData(string topic)
 		{
-			string apiURL = $"https://wsearch.nlm.nih.gov/ws/query?db=healthTopics&term={topic}";
+			string apiURL = "https://wsearch.nlm.nih.gov/ws/query?db=healthTopics&term=" + topic;
 
 			using (HttpClient client = new HttpClient())
 			{
 				try
 				{
-					HttpResponseMessage responseMessage = await client.GetAsync(apiURL);
-					responseMessage.EnsureSuccessStatusCode();
-					return await responseMessage.Content.ReadAsStringAsync();
+					HttpResponseMessage response = await client.GetAsync(apiURL);
+					response.EnsureSuccessStatusCode();
+					return await response.Content.ReadAsStringAsync();
 				}
 				catch (HttpRequestException e)
 				{

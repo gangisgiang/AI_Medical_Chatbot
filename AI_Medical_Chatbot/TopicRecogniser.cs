@@ -9,7 +9,7 @@ namespace AI_Medical_Chatbot
     public class TopicRecogniser
     {
         private readonly CardioAIService cardioAIService = new CardioAIService();
-        private readonly RespAIService respAIService = new RespAIService();
+        // private readonly RespAIService respAIService = new RespAIService();
 
         public readonly Dictionary<string, string> topicMap = new Dictionary<string, string>()
         {
@@ -38,14 +38,7 @@ namespace AI_Medical_Chatbot
             {"flu", "respiratory"},
             {"common cold", "respiratory"},
             {"pulmonary", "respiratory"},
-            {"pulmonology", "respiratory"},
-            {"respiratory system", "respiratory"},
-            {"respiratory tract", "respiratory"},
-            {"respiratory infection", "respiratory"},
-            {"respiratory disease", "respiratory"},
-            {"respiratory failure", "respiratory"},
-            {"respiratory distress", "respiratory"},
-            {"respiratory arrest", "respiratory"},
+            {"pulmonology", "respiratory"}
         };
 
         private string PreProcessInput(string input)
@@ -77,10 +70,10 @@ namespace AI_Medical_Chatbot
             {
                 return await cardioAIService.GenerateResponse(input);
             }
-            else if (input.Contains("respiratory") || input.Contains("lung") || input.Contains("asthma") || input.Contains("pneumonia") || input.Contains("covid"))
-            {
-                return await respAIService.GenerateResponse(input);
-            }
+            // else if (input.Contains("respiratory") || input.Contains("lung") || input.Contains("asthma") || input.Contains("pneumonia") || input.Contains("covid"))
+            // {
+            //     return await respAIService.GenerateResponse(input);
+            // }
 
             return "Sorry, please provide more details.";
         }

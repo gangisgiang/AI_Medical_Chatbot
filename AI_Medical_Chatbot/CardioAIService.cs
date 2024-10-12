@@ -20,6 +20,12 @@ namespace AI_Medical_Chatbot
 
         public override async Task<string> GenerateResponse(string message)
         {
+            // If there's no element in _cardioData, fetch "cardiovascular" data
+            if (_cardioData.Count == 0)
+            {
+                return await FetchData("cardiovascular");
+            }
+
             // Cluster the input and return cardio-related information
             string cluster = ClusterCardioTopic(message);
 
@@ -36,19 +42,20 @@ namespace AI_Medical_Chatbot
 
         private string ClusterCardioTopic(string input)
         {
-            var mlContext = new MLContext();
-            var data = _cardioData.Select(x => new TopicData { Topic = x }).ToList();
-            var dataView = mlContext.Data.LoadFromEnumerable(data);
+            MLContext mlContext = new MLContext();
+            List<TopicData> data = _cardioData.Select(x => new TopicData { Topic = x }).ToList();
+            IDataView dataView = mlContext.Data.LoadFromEnumerable(data);
 
-            var pipeline = mlContext.Transforms.Text.FeaturizeText("Features", nameof(TopicData.Topic)).
-            Append(mlContext.Clustering.Trainers.KMeans("Features", numberOfClusters: 5));
+            EstimatorChain<ClusteringPredictionTransformer<Microsoft.ML.Trainers.KMeansModelParameters>> pipeline 
+            = mlContext.Transforms.Text.FeaturizeText("Features", nameof(TopicData.Topic)).
+              Append(mlContext.Clustering.Trainers.KMeans("Features", numberOfClusters: 5));
 
-            var model = pipeline.Fit(dataView);
-            var predictionEngine = mlContext.Model.CreatePredictionEngine<TopicData, ClusterPrediction>(model);
-            
+            TransformerChain<ClusteringPredictionTransformer<Microsoft.ML.Trainers.KMeansModelParameters>> model = pipeline.Fit(dataView);
+            PredictionEngine<TopicData, ClusterPrediction> predictionEngine = mlContext.Model.CreatePredictionEngine<TopicData, ClusterPrediction>(model);
+
             // Cluster the input and predict the cluster
-            var inputTopic = new TopicData { Topic = input };
-            var prediction = predictionEngine.Predict(inputTopic);
+            TopicData inputTopic = new TopicData { Topic = input };
+            ClusterPrediction prediction = predictionEngine.Predict(inputTopic);
 
             switch (prediction.PredictedLabel)
             {
@@ -70,7 +77,7 @@ namespace AI_Medical_Chatbot
         // Define the data classes
         public class TopicData
         {
-            public string Topic { get; set; }
+            public string? Topic { get; set; }
         }
 
         // Cluster prediction class
