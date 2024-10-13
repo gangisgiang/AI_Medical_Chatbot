@@ -20,24 +20,39 @@ namespace AI_Medical_Chatbot
 
         public override async Task<string> GenerateResponse(string message)
         {
-            // If there's no element in _cardioData, fetch "cardiovascular" data
             if (_cardioData.Count == 0)
             {
-                return await FetchData("cardiovascular");
+                var rawHtmlData = await FetchData("cardiovascular");
+                return ConvertHtmlToPlainText(rawHtmlData);
             }
 
             // Cluster the input and return cardio-related information
             string cluster = ClusterCardioTopic(message);
+            Console.WriteLine("Cluster: " + cluster);
 
             // If clustering doesn't work, return general information
             if (string.IsNullOrEmpty(cluster))
             {
-                await FetchData("cardiovascular");
+                var rawHtmlData = await FetchData("cardiovascular");
+                string processedData = ConvertHtmlToPlainText(rawHtmlData);
+                return ExtractRelevantInfo(processedData, message);
             }
 
             // Fetch data based on the cluster
-            string data = await FetchData(cluster);
-            return data;
+            var htmlData = await FetchData(cluster);
+            string plainTextData = ConvertHtmlToPlainText(htmlData);
+
+            // Console.WriteLine("Fetched data: " + plainTextData);
+
+            string relevantInfo = ExtractRelevantInfo(plainTextData, cluster);
+
+            if (string.IsNullOrEmpty(relevantInfo))
+            {
+                return "No relevant information found.";
+            }
+
+            // Extract relevant information from the fetched data
+            return relevantInfo;
         }
 
         private string ClusterCardioTopic(string input)
@@ -66,12 +81,44 @@ namespace AI_Medical_Chatbot
                 case 3:
                     return "stroke";
                 case 4:
-                    return "cardiovascular health";
+                    return "cardiovascular";
                 case 5:
                     return "cholesterol";
                 default:
-                    return "";
+                    return string.Empty;
             }
+        }
+
+        // Extract relevant information from the fetched data
+        private string ExtractRelevantInfo(string plainTextData, string topic)
+        {
+            // Split the data into paragraphs
+            string[] paragraphs = plainTextData.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+
+            // Filter paragraphs containing the topic or related information
+            var relevantParagraphs = paragraphs.
+            Where(p => p.Contains(topic, StringComparison.OrdinalIgnoreCase) || 
+                       _cardioData.Any(keyword => p.Contains(keyword, StringComparison.OrdinalIgnoreCase))).
+                       ToArray();
+
+            Console.WriteLine("Relevant information found:");
+            foreach (var paragraph in paragraphs)
+            {
+                Console.WriteLine(paragraph);
+            }
+
+            if (relevantParagraphs.Length == 0)
+            {
+                return "No relevant information found.";
+            }
+
+            // Return the first sentence of the first relevant paragraph
+            string firstParagraph = relevantParagraphs[0];
+            string firstSentence = firstParagraph.Split('.').FirstOrDefault()?.Trim() + ".";
+            return firstSentence;
+            // Return the relevant information as a short summary or the first paragraph
+            // return relevantParagraphs.Length > 0 ? relevantParagraphs[0] : "No relevant information found.";
+            
         }
 
         // Define the data classes
@@ -85,7 +132,6 @@ namespace AI_Medical_Chatbot
         {
             [ColumnName("PredictedLabel")]
             public uint PredictedLabel;
-            public float[] Score;
         }
     }
 }

@@ -3,7 +3,7 @@ namespace AI_Medical_Chatbot
 {
 	public class Conversation
 	{
-		public int ConvoID { get; set; }
+		public int ConvoID { get;}
 		public string ConvoName { get; set; }
 		public List<Message> Messages { get; set; } = new List<Message>();
 

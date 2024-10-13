@@ -13,7 +13,7 @@ namespace AI_Medical_Chatbot
 			Text = text;
 			SenderID = senderID;
 			ReceiverID = receiverID;
-			Time = DateTime.Now;
+			// Time = DateTime.Now;
 		}
 		
 		public void Sender()
@@ -25,7 +25,7 @@ namespace AI_Medical_Chatbot
 			}
 			else
 			{
-				Console.WriteLine(Text);
+				Console.WriteLine("User " + SenderID + ": " + Text);
 			}
 		}
 	}

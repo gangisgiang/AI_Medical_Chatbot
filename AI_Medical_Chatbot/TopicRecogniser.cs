@@ -19,6 +19,7 @@ namespace AI_Medical_Chatbot
             {"blood pressure", "cardiovascular"},
             {"stroke", "cardiovascular"},
             {"cardiovascular", "cardiovascular"},
+            {"heart disease", "cardiovascular"},
             {"respiratory", "respiratory"},
             {"lung", "respiratory"},
             {"asthma", "respiratory"},
@@ -41,41 +42,52 @@ namespace AI_Medical_Chatbot
             {"pulmonology", "respiratory"}
         };
 
-        private string PreProcessInput(string input)
+        private (string, int) PreProcessInput(string input)
         {
             // Lowercase the input and remove special characters
             input = input.ToLower();
             input = Regex.Replace(input, "[^a-zA-Z0-9 ]", "");
+            // input = input.Replace("what is", "").Trim();
 
             // Try to replace synonyms with broader terms
             foreach (var entry in topicMap)
             {
-                if (input.Contains(entry.Key))
+                int keywordIndex = input.IndexOf(entry.Key);
+                if (keywordIndex != -1)
                 {
                     input = input.Replace(entry.Key, entry.Value);
+                    return (input, keywordIndex);
                 }
             }
 
-            return input;
+            return (input, -1);
         }
 
         // Recognise the and return the topic of the input
-        public async Task<string> RecogniseandResponseTopic(string input)
+        public async Task<string> RecogniseAndRespond(string input)
         {
-            // Preprocess the input using NLP techniques
-            input = PreProcessInput(input);
+            var (processedInput, keywordIndex) = PreProcessInput(input);
 
-            // Route the input to the appropriate AI service
-            if (input.Contains("cardiovascular") || input.Contains("heart") || input.Contains("hypertension") || input.Contains("stroke"))
+            if (keywordIndex == -1)
             {
-                return await cardioAIService.GenerateResponse(input);
+                return "Sorry, I don't have enough information on that. Can you try rephrasing your question?";
             }
-            // else if (input.Contains("respiratory") || input.Contains("lung") || input.Contains("asthma") || input.Contains("pneumonia") || input.Contains("covid"))
-            // {
-            //     return await respAIService.GenerateResponse(input);
-            // }
 
-            return "Sorry, please provide more details.";
+            string response = string.Empty;
+
+            if (input.Contains("cardiovascular"))
+            {
+                response = await cardioAIService.GenerateResponse(input);
+            }
+            
+            // Display the response if something is fetched
+            if (!string.IsNullOrEmpty(response))
+            {
+                return response;
+            }
+
+            // Fallback response if no specific topic is matched
+            return "Sorry, I don't have enough information on that. Can you try rephrasing your question?";
         }
     }
 }
