@@ -2,47 +2,39 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Net.Http;
 using Microsoft.ML;
 using Microsoft.ML.Data;
 
-
 namespace AI_Medical_Chatbot
 {
-    public class CardioAIService : AIService
+    public class CardioAIService : AIService, IAIResponse
     {
         private readonly List<string> _cardioData = new List<string>
-        { 
-            "heart", "hypertension", "blood pressure", "stroke", "cardiovascular", 
-            "cardio", "cholesterol", "cardiac", "cardiology", "cardiologist", 
-            "cardiomyopathy", "cardiopulmonary", "cardiorespiratory" 
+        {
+            "heart", "hypertension", "blood pressure", "stroke", "cardiovascular system",
+            "cardio", "cholesterol", "cardiac", "cardiology", "cardiologist",
+            "cardiomyopathy", "cardiopulmonary", "cardiorespiratory", "atherosclerosis",
+            "myocardial infarction", "arrhythmia", "heart attack", "congestive heart failure",
+            "vascular disease", "endocarditis", "heart valve disease", "coronary artery disease"
         };
 
-        public override async Task<string> GenerateResponse(string message)
+        public async Task<string> GenerateResponse(string message)
         {
             if (_cardioData.Count == 0)
             {
-                var rawHtmlData = await FetchData("cardiovascular");
-                return ConvertHtmlToPlainText(rawHtmlData);
+                return await FetchandConvert("cardiovascular");
             }
 
             // Cluster the input and return cardio-related information
             string cluster = ClusterCardioTopic(message);
             Console.WriteLine("Cluster: " + cluster);
 
-            // If clustering doesn't work, return general information
             if (string.IsNullOrEmpty(cluster))
             {
-                var rawHtmlData = await FetchData("cardiovascular");
-                string processedData = ConvertHtmlToPlainText(rawHtmlData);
-                return ExtractRelevantInfo(processedData, message);
+                return await FetchandConvert("cardiovascular");
             }
 
-            // Fetch data based on the cluster
-            var htmlData = await FetchData(cluster);
-            string plainTextData = ConvertHtmlToPlainText(htmlData);
-
-            // Console.WriteLine("Fetched data: " + plainTextData);
+            string plainTextData = await FetchandConvert(cluster);
 
             string relevantInfo = ExtractRelevantInfo(plainTextData, cluster);
 
@@ -51,7 +43,6 @@ namespace AI_Medical_Chatbot
                 return "No relevant information found.";
             }
 
-            // Extract relevant information from the fetched data
             return relevantInfo;
         }
 
@@ -61,45 +52,50 @@ namespace AI_Medical_Chatbot
             List<TopicData> data = _cardioData.Select(x => new TopicData { Topic = x }).ToList();
             IDataView dataView = mlContext.Data.LoadFromEnumerable(data);
 
-            EstimatorChain<ClusteringPredictionTransformer<Microsoft.ML.Trainers.KMeansModelParameters>> pipeline 
-            = mlContext.Transforms.Text.FeaturizeText("Features", nameof(TopicData.Topic)).
-              Append(mlContext.Clustering.Trainers.KMeans("Features", numberOfClusters: 5));
+            var pipeline = mlContext.Transforms.Text.FeaturizeText("Features", nameof(TopicData.Topic)).
+              Append(mlContext.Clustering.Trainers.KMeans("Features", numberOfClusters: 1));
 
-            TransformerChain<ClusteringPredictionTransformer<Microsoft.ML.Trainers.KMeansModelParameters>> model = pipeline.Fit(dataView);
-            PredictionEngine<TopicData, ClusterPrediction> predictionEngine = mlContext.Model.CreatePredictionEngine<TopicData, ClusterPrediction>(model);
+            var model = pipeline.Fit(dataView);
+            var predictionEngine = mlContext.Model.CreatePredictionEngine<TopicData, ClusterPrediction>(model);
 
-            // Cluster the input and predict the cluster
             TopicData inputTopic = new TopicData { Topic = input };
             ClusterPrediction prediction = predictionEngine.Predict(inputTopic);
 
             switch (prediction.PredictedLabel)
             {
                 case 1:
-                    return "heart disease";
-                case 2:
-                    return "hypertension";
-                case 3:
-                    return "stroke";
-                case 4:
+                //     return "heart disease";
+                // case 2:
+                //     return "cardiovascular system";
+                // case 3:
+                //     return "blood pressure";
+                // case 4:
+                //     return "stroke";
+                // case 5:
+                //     return "cholesterol";
+                // case 6:
+                //     return "arrhythmia";
+                // case 7:
+                //     return "congestive heart failure";
+                // case 8:
+                //     return "heart valve disease";
+                // case 9:
+                //     return "vascular disease";
+                // case 10:
                     return "cardiovascular";
-                case 5:
-                    return "cholesterol";
                 default:
                     return string.Empty;
             }
         }
 
-        // Extract relevant information from the fetched data
         private string ExtractRelevantInfo(string plainTextData, string topic)
         {
             // Split the data into paragraphs
             string[] paragraphs = plainTextData.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
 
             // Filter paragraphs containing the topic or related information
-            var relevantParagraphs = paragraphs.
-            Where(p => p.Contains(topic, StringComparison.OrdinalIgnoreCase) || 
-                       _cardioData.Any(keyword => p.Contains(keyword, StringComparison.OrdinalIgnoreCase))).
-                       ToArray();
+            var relevantParagraphs = paragraphs.Where(p => p.Contains(topic, StringComparison.OrdinalIgnoreCase) 
+            || _cardioData.Any(keyword => p.Contains(keyword, StringComparison.OrdinalIgnoreCase))).ToArray();
 
             Console.WriteLine("Relevant information found:");
             foreach (var paragraph in paragraphs)
@@ -118,16 +114,18 @@ namespace AI_Medical_Chatbot
             return firstSentence;
             // Return the relevant information as a short summary or the first paragraph
             // return relevantParagraphs.Length > 0 ? relevantParagraphs[0] : "No relevant information found.";
-            
+
+            // var paragraphs = plainTextData.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+            // var relevantParagraphs = paragraphs.Where(p => _respData.Any(keyword => p.Contains(keyword, StringComparison.OrdinalIgnoreCase))).ToArray();
+
+            // return relevantParagraphs.Length == 0 ? "No relevant information found." : relevantParagraphs.First().Split('.').FirstOrDefault()?.Trim() + ".";
         }
 
-        // Define the data classes
         public class TopicData
         {
             public string? Topic { get; set; }
         }
 
-        // Cluster prediction class
         public class ClusterPrediction
         {
             [ColumnName("PredictedLabel")]

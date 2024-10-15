@@ -13,12 +13,12 @@ namespace AI_Medical_Chatbot
 			Text = text;
 			SenderID = senderID;
 			ReceiverID = receiverID;
-			// Time = DateTime.Now;
+			Time = DateTime.Now;
 		}
 		
 		public void Sender()
 		{
-			// if the senderid = 0, then the sender is the chatbot
+			// if the senderid = 0, then the 	sender is the chatbot
 			if (SenderID == 0)
 			{
 				Console.WriteLine("Chatbot: " + Text);

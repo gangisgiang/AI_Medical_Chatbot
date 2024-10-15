@@ -9,19 +9,31 @@ namespace AI_Medical_Chatbot
 {
 	public class ChatComponent
 	{
+		private static ChatComponent _instance;
 		private readonly TopicRecogniser topicRecogniser = new TopicRecogniser();
 		private int convoCount = 0;
 		public List<Conversation> ConversationList { get; set; } = new List<Conversation>();
-		// private readonly DatabaseConvoService databaseconvoService = new DatabaseConvoService();
-		// private const string convoCountFile = "convoCount.txt";
+		private readonly DatabaseConvoService databaseconvoService = new DatabaseConvoService();
+		private const string convoCountFile = "convoCount.txt";
 
-		// public ChatComponent(DatabaseConvoService dbService)
-		// {
-		// 	databaseconvoService = dbService;
-		// 	// Load conversations from the database
-		// 	LoadConversations();
-		// 	LoadConvoCount();
-		// }
+		private ChatComponent(DatabaseConvoService dbService)
+		{
+			databaseconvoService = dbService;
+			// Load conversations from the database
+			LoadConversations();
+			LoadConvoCount();
+		}
+
+		public static ChatComponent GetInstance(DatabaseConvoService dbService)
+		{
+			if (_instance == null)
+			{
+				_instance = new ChatComponent(dbService);
+			}
+			
+			return _instance;
+		}
+		
 
 		public void AskChatbot(User user, string text)
 		{
@@ -59,7 +71,7 @@ namespace AI_Medical_Chatbot
 				Conversation initialConvo = new Conversation(convoCount, "Conversation");
 				convoCount++;
 				ConversationList.Add(initialConvo);
-				// SaveConvoCount();
+				SaveConvoCount();
 			}
 			else
 			{
@@ -68,86 +80,86 @@ namespace AI_Medical_Chatbot
 				convoCount++;
 				ConversationList.Add(convo);
 				Console.WriteLine(convo.ConvoName + " created.");
-				// SaveConvoCount();
+				SaveConvoCount();
 			}
 		}
 
-		// public void SaveConversations()
-		// {
-		// 	string json = JsonSerializer.Serialize(ConversationList);
-		// 	File.WriteAllText("conversations.json", json);
-		// }
+		public void SaveConversations()
+		{
+			string json = JsonSerializer.Serialize(ConversationList);
+			File.WriteAllText("conversations.json", json);
+		}
 
-		// public void LoadConversations()
-		// {
-		// 	if (File.Exists("conversations.json"))
-		// 	{
-		// 		string json = File.ReadAllText("conversations.json");
-		// 		ConversationList = JsonSerializer.Deserialize<List<Conversation>>(json) ?? new List<Conversation>();
-		// 		convoCount = ConversationList.Count;
-		// 	}
-		// }
+		public void LoadConversations()
+		{
+			if (File.Exists("conversations.json"))
+			{
+				string json = File.ReadAllText("conversations.json");
+				ConversationList = JsonSerializer.Deserialize<List<Conversation>>(json) ?? new List<Conversation>();
+				convoCount = ConversationList.Count;
+			}
+		}
 
-		// public void SaveConvoCount()
-		// {
-		// 	File.WriteAllText(convoCountFile, convoCount.ToString());
-		// }
+		public void SaveConvoCount()
+		{
+			File.WriteAllText(convoCountFile, convoCount.ToString());
+		}
 
-		// public void LoadConvoCount()
-		// {
-		// 	if (File.Exists(convoCountFile))
-		// 	{
-		// 		string count = File.ReadAllText(convoCountFile);
-		// 		convoCount = int.Parse(count);
-		// 	}
-		// }
+		public void LoadConvoCount()
+		{
+			if (File.Exists(convoCountFile))
+			{
+				string count = File.ReadAllText(convoCountFile);
+				convoCount = int.Parse(count);
+			}
+		}
 
-		// public void RenameConvo(int convoIndex, string newName)
-		// {
-		// 	if (convoCount == 0)
-		// 	{
-		// 		Console.WriteLine("No conversation to rename.");
-		// 		return;
-		// 	}
+		public void RenameConvo(int convoIndex, string newName)
+		{
+			if (convoCount == 0)
+			{
+				Console.WriteLine("No conversation to rename.");
+				return;
+			}
 
-		// 	if (convoIndex < 0 || convoIndex >= convoCount)
-		// 	{
-		// 		Console.WriteLine("Invalid conversation index.");
-		// 		return;
-		// 	}
+			if (convoIndex < 0 || convoIndex >= convoCount)
+			{
+				Console.WriteLine("Invalid conversation index.");
+				return;
+			}
 
-		// 	// Rename the conversation
-		// 	ConversationList[convoCount - 1].ConvoName = newName;
-		// 	Console.WriteLine("Conversation renamed to: " + newName);
-		// }
+			// Rename the conversation
+			ConversationList[convoCount - 1].ConvoName = newName;
+			Console.WriteLine("Conversation renamed to: " + newName);
+		}
 
-		// public void DisplayConvo()
-		// {
-		// 	// Display the messages in the chosen conversation
-		// 	foreach (Conversation convo in ConversationList)
-		// 	{
-		// 		Console.WriteLine("--- " + convo.ConvoName + " ---");
-		// 		convo.DisplayMessages();
-		// 	}	
-		// }
+		public void DisplayConvo()
+		{
+			// Display the messages in the chosen conversation
+			foreach (Conversation convo in ConversationList)
+			{
+				Console.WriteLine("--- " + convo.ConvoName + " ---");
+				convo.DisplayMessages();
+			}	
+		}
 
-		// public void DeleteConvo(int convoIndex)
-		// {
-		// 	if (convoCount == 0)
-		// 	{
-		// 		Console.WriteLine("No conversation to delete.");
-		// 		return;
-		// 	}
+		public void DeleteConvo(int convoIndex)
+		{
+			if (convoCount == 0)
+			{
+				Console.WriteLine("No conversation to delete.");
+				return;
+			}
 
-		// 	if (convoIndex < 0 || convoIndex >= convoCount)
-		// 	{
-		// 		Console.WriteLine("Invalid conversation index.");
-		// 		return;
-		// 	}
+			if (convoIndex < 0 || convoIndex >= convoCount)
+			{
+				Console.WriteLine("Invalid conversation index.");
+				return;
+			}
 
-		// 	// Delete the conversation
-		// 	Console.WriteLine(ConversationList[convoIndex].ConvoName + " deleted.");
-		// 	ConversationList.RemoveAt(convoIndex);
-		// }
+			// Delete the conversation
+			Console.WriteLine(ConversationList[convoIndex].ConvoName + " deleted.");
+			ConversationList.RemoveAt(convoIndex);
+		}
 	}
 }

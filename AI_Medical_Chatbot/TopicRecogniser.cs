@@ -39,54 +39,63 @@ namespace AI_Medical_Chatbot
             {"flu", "respiratory"},
             {"common cold", "respiratory"},
             {"pulmonary", "respiratory"},
-            {"pulmonology", "respiratory"}
+            {"pulmonology", "respiratory"},
+            {"neuro", "neurology"},
+            {"neuron", "neurology"},
+            {"brain", "neurology"},
+            {"nervous system", "neurology"},
+            {"brainstem", "neurology"},
+            {"cerebellum", "neurology"},
+            {"myelin", "neurology"},
+            {"axon", "neurology"},
         };
 
-        private (string, int) PreProcessInput(string input)
+        private (string, string) PreProcessInput(string input)
         {
-            // Lowercase the input and remove special characters
+            // Convert input to lowercase and remove special characters
             input = input.ToLower();
             input = Regex.Replace(input, "[^a-zA-Z0-9 ]", "");
-            // input = input.Replace("what is", "").Trim();
 
-            // Try to replace synonyms with broader terms
+            // Tokenize input to better identify keywords
+            string[] tokens = input.Split(' ');
+
+            // Look for keywords in the input
             foreach (var entry in topicMap)
             {
-                int keywordIndex = input.IndexOf(entry.Key);
-                if (keywordIndex != -1)
+                // Check if any token matches the keyword from the dictionary
+                if (tokens.Any(token => token.Contains(entry.Key)))
                 {
-                    input = input.Replace(entry.Key, entry.Value);
-                    return (input, keywordIndex);
+                    Console.WriteLine($"Matched keyword: {entry.Key} -> Topic: {entry.Value}");
+                    return (entry.Key, entry.Value);
                 }
             }
 
-            return (input, -1);
+            return (string.Empty, string.Empty); // Return empty if no match is found
         }
 
         // Recognise the and return the topic of the input
         public async Task<string> RecogniseAndRespond(string input)
         {
-            var (processedInput, keywordIndex) = PreProcessInput(input);
+            var (keyword, topic) = PreProcessInput(input);
 
-            if (keywordIndex == -1)
+            if (string.IsNullOrEmpty(topic))
             {
                 return "Sorry, I don't have enough information on that. Can you try rephrasing your question?";
+
             }
 
-            string response = string.Empty;
+            Console.WriteLine("Processing input for topic: " + topic);
 
-            if (input.Contains("cardiovascular"))
-            {
-                response = await cardioAIService.GenerateResponse(input);
-            }
-            
-            // Display the response if something is fetched
+            IAIResponse aiService = AIServiceFactory.CreateAIService(topic);
+
+            // Generate the response using the selected AI service
+            string response = await aiService.GenerateResponse(input);
+
             if (!string.IsNullOrEmpty(response))
             {
                 return response;
             }
 
-            // Fallback response if no specific topic is matched
             return "Sorry, I don't have enough information on that. Can you try rephrasing your question?";
         }
     }

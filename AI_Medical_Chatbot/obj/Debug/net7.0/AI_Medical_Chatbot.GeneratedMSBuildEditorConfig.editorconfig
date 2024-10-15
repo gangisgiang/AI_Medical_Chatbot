@@ -9,3 +9,5 @@ build_property.EnforceExtendedAnalyzerRules =
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = AI_Medical_Chatbot
 build_property.ProjectDir = /Users/guest1/Documents/OOP/AI_Medical_Chatbot/AI_Medical_Chatbot/
+build_property.EnableComHosting = 
+build_property.EnableGeneratedComInterfaceComImportInterop = 
