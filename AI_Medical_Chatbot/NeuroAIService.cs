@@ -2,46 +2,32 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Net.Http;
 using Microsoft.ML;
 using Microsoft.ML.Data;
-using Microsoft.ML.Transforms.Text;
-
 
 namespace AI_Medical_Chatbot
 {
     public class NeuroAIService : AIService, IAIResponse
     {
-        private readonly List<string> _neuroData = new List<string>
-        { 
-            "neuron", "synapse", "axon", "dendrite", "cerebellum", "cerebral cortex", "spinal cord",
-            "nervous system", "myelin", "glial cells", "cerebrospinal fluid", "electroencephalogram",
-            "computed tomography", "multiple sclerosis", "epilepsy", "seizures", "dementia", "tremor", 
-            "cognitive impairment", "motor neuron disease", "neuroinflammation", "neuropathy", 
-            "cranial nerves", "neurotoxin", "neurovascular disorder", "brainstem"
-        };
-
         public async Task<string> GenerateResponse(string message)
         {
-            if (_neuroData.Count == 0)
-            {
-                string rawHtmlData = await _apiAdapter.FetchData("cardiovascular");
-                return _apiAdapter.ConvertHtmlToPlainText(rawHtmlData);
-            }
-
             // Cluster the input and return cardio-related information
-            string cluster = ClusterRespTopic(message);
+            string cluster = ClusterNeuroTopic(message);
+            string topic = "neurology";
+
+            // if (cluster.Contains(" "))
+            // {
+            //     cluster = cluster.Replace(" ", "-");
+            // }
+
             Console.WriteLine("Cluster: " + cluster);
 
             if (string.IsNullOrEmpty(cluster))
             {
-                string rawHtmlData = await _apiAdapter.FetchData("cardiovascular");
-                string processedData = _apiAdapter.ConvertHtmlToPlainText(rawHtmlData);
-                return ExtractRelevantInfo(processedData, message);
+                return await FetchandConvert("neurology");
             }
 
-            string htmlData = await _apiAdapter.FetchData(cluster);
-            string plainTextData = _apiAdapter.ConvertHtmlToPlainText(htmlData);
+            string plainTextData = await FetchandConvert(topic);
 
             string relevantInfo = ExtractRelevantInfo(plainTextData, cluster);
 
@@ -53,84 +39,78 @@ namespace AI_Medical_Chatbot
             return relevantInfo;
         }
 
-        private string ClusterRespTopic(string input)
+        private string ClusterNeuroTopic(string input)
         {
-            MLContext mlContext = new MLContext();
-            List<TopicData> data = _neuroData.Select(x => new TopicData { Topic = x }).ToList();
-            IDataView dataView = mlContext.Data.LoadFromEnumerable(data);
+            // Convert input to lowercase to ensure case-insensitive matching
+            input = input.ToLower();
 
-            var pipeline = mlContext.Transforms.Text.FeaturizeText("Features", nameof(TopicData.Topic)).
-              Append(mlContext.Clustering.Trainers.KMeans("Features", numberOfClusters: 10));
-
-            var model = pipeline.Fit(dataView);
-            var predictionEngine = mlContext.Model.CreatePredictionEngine<TopicData, ClusterPrediction>(model);
-
-            // Cluster the input and predict the cluster
-            TopicData inputTopic = new TopicData { Topic = input };
-            ClusterPrediction prediction = predictionEngine.Predict(inputTopic);
-
-            switch (prediction.PredictedLabel)
+            // Define a manual mapping for keywords to topics with longer and more specific keywords first
+            var manualMapping = new Dictionary<string, string>
             {
-                case 1:
-                    return "neuron";
-                case 2:
-                    return "brain structure";
-                case 3:
-                    return "nervous system";
-                case 4:
-                    return "neuroimaging";
-                case 5:
-                    return "neurological diseases";
-                case 6:
-                    return "seizure disorders";
-                case 7:
-                    return "cognitive and motor issues";
-                case 8:
-                    return "nervous system disorders";
-                case 9:
-                    return "inflammation and toxins";
-                default:
-                    return string.Empty;
+                { "sensitivity to light", "migraine" },
+                { "memory loss", "alzheimers disease" },
+                { "movement disorders", "parkinsons disease" },
+                { "spinal cord injury", "spinal cord injury" },
+                { "autoimmune", "multiple sclerosis" },
+                { "dopamine", "parkinsons disease" },
+                { "seizures", "epilepsy" },
+                { "headaches", "neurology" },
+                { "vision problems", "brain tumor" },
+                { "brain tumor", "brain tumor" },
+                { "Alzheimer", "alzheimers disease" },
+                { "Parkinson", "parkinsons disease" },
+                { "ALS", "neurodegenerative diseases" },
+                { "Huntington", "neurodegenerative diseases" },
+                { "Multiple Sclerosis", "multiple sclerosis" },
+                { "epilepsy", "epilepsy" },
+                { "neurology", "neurology" },
+                { "migraines", "migraine" },
+                { "migraine", "migraine" },
+                { "tumor", "brain tumor" },
+                { "cancer", "brain tumor" },
+                { "paralysis", "spinal cord injury" },
+                { "MS", "multiple sclerosis" },
+                { "dementia", "alzheimers disease" },
+                { "stroke", "neurology" }
+            };
+
+
+            // Check if the input matches any keywords
+            foreach (var keyword in manualMapping.Keys.OrderByDescending(k => k.Length))
+            {
+                if (input.Contains(keyword))
+                {
+                    return manualMapping[keyword];
+                }
             }
+
+            // If no match is found, return an empty string or a default topic
+            return "neurology";
         }
 
         private string ExtractRelevantInfo(string plainTextData, string topic)
         {
-            // Split the data into paragraphs
+            // Split the data into paragraphs, ensuring no empty entries
             string[] paragraphs = plainTextData.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
 
-            // Filter paragraphs containing the topic or related information
-            var relevantParagraphs = paragraphs.Where(p => p.Contains(topic, StringComparison.OrdinalIgnoreCase) 
-            || _neuroData.Any(keyword => p.Contains(keyword, StringComparison.OrdinalIgnoreCase))).ToArray();
-
-            Console.WriteLine("Relevant information found:");
-            foreach (var paragraph in paragraphs)
-            {
-                Console.WriteLine(paragraph);
-            }
+            // Ensure that we are using the hyphenated version of the topic to match the section ID
+            var relevantParagraphs = paragraphs.Where(p => p.Contains(topic, StringComparison.OrdinalIgnoreCase)
+                || p.Contains(topic, StringComparison.OrdinalIgnoreCase)).ToArray();
 
             if (relevantParagraphs.Length == 0)
+            {
+                return "No relevant information.";
+            }
+
+            // Ensure that the first relevant paragraph is meaningful and not just a header
+            string firstParagraph = relevantParagraphs.FirstOrDefault(p => p.Split('.').Length > 1)?.Trim();
+
+            if (string.IsNullOrEmpty(firstParagraph))
             {
                 return "No relevant information found.";
             }
 
-            // Return only the first sentence of the first relevant paragraph
-            string firstParagraph = relevantParagraphs[0];
-            string firstSentence = firstParagraph.Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault()?.Trim() + ".";
-            return firstSentence;
-        }
-
-        // Define the data classes
-        public class TopicData
-        {
-            public string? Topic { get; set; }
-        }
-
-        // Cluster prediction class
-        public class ClusterPrediction
-        {
-            [ColumnName("PredictedLabel")]
-            public uint PredictedLabel;
+            return firstParagraph;
         }
     }
 }

@@ -10,39 +10,20 @@ namespace AI_Medical_Chatbot
 {
     public class RespAIService : AIService, IAIResponse
     {
-        private readonly List<string> _respData = new List<string>
+        public async Task<string> GenerateResponse(string message)
         {
-            // list keywords that relevant to respiratory medical field
-            "respiratory", "breathing", "lung", "cough", "chest", "pneumonia", 
-            "asthma", "bronchitis", "influenza", "tuberculosis", "emphysema", 
-            "pulmonary", "sputum", "wheezing", "dyspnea", "cyanosis", "hypoxemia", 
-            "hypoxia", "pleurisy", "pulmonary embolism", "pulmonary fibrosis", 
-            "pulmonary hypertension", "respiratory distress syndrome", "respiratory failure", 
-            "respiratory syncytial virus", "sarcoidosis", "sleep apnea", "smoking", "spirometry", 
-            "trachea", "tracheostomy", "ventilation", "vital capacity"
-        };
-
-        public  async Task<string> GenerateResponse(string message)
-        {
-            if (_respData.Count == 0)
-            {
-                string rawHtmlData = await _apiAdapter.FetchData("cardiovascular");
-                return _apiAdapter.ConvertHtmlToPlainText(rawHtmlData);
-            }
-
             // Cluster the input and return cardio-related information
             string cluster = ClusterRespTopic(message);
+            string topic = "respiratory";
+
             Console.WriteLine("Cluster: " + cluster);
 
             if (string.IsNullOrEmpty(cluster))
             {
-                string rawHtmlData = await _apiAdapter.FetchData("cardiovascular");
-                string processedData = _apiAdapter.ConvertHtmlToPlainText(rawHtmlData);
-                return ExtractRelevantInfo(processedData, message);
+                return await FetchandConvert("respiratory");
             }
 
-            string htmlData = await _apiAdapter.FetchData(cluster);
-            string plainTextData = _apiAdapter.ConvertHtmlToPlainText(htmlData);
+            string plainTextData = await FetchandConvert(topic);
 
             string relevantInfo = ExtractRelevantInfo(plainTextData, cluster);
 
@@ -56,81 +37,85 @@ namespace AI_Medical_Chatbot
 
         private string ClusterRespTopic(string input)
         {
-            MLContext mlContext = new MLContext();
-            List<TopicData> data = _respData.Select(x => new TopicData { Topic = x }).ToList();
-            IDataView dataView = mlContext.Data.LoadFromEnumerable(data);
+            // Convert input to lowercase to ensure case-insensitive matching
+            input = input.ToLower();
 
-            // Define the pipeline
-            var pipeline = mlContext.Transforms.Text.FeaturizeText("Features", nameof(TopicData.Topic)).
-                Append(mlContext.Clustering.Trainers.KMeans("Features", numberOfClusters: 8));
-
-            // Train the model
-            var model = pipeline.Fit(dataView);
-            var predictionEngine = mlContext.Model.CreatePredictionEngine<TopicData, ClusterPrediction>(model);
-
-            // Cluster the input and predict the cluster
-            TopicData inputTopic = new TopicData { Topic = input };
-            ClusterPrediction prediction = predictionEngine.Predict(inputTopic);
-
-            switch (prediction.PredictedLabel)
+            // Define a manual mapping for keywords to topics based on the file content
+            var manualMapping = new Dictionary<string, string>
             {
-                case 1:
-                    return "lung";
-                case 2:
-                    return "asthma";
-                case 3:
-                    return "pneumonia";
-                case 4:
-                    return "bronchitis";
-                case 5:
-                    return "chronic obstructive pulmonary disease";
-                case 6:
-                    return "emphysema";
-                case 7:
-                    return "respiratory distress syndrome";
-                case 8:
-                    return "respiratory failure";
-                default:
-                    return string.Empty;
+                { "tracheostomy", "respiratory failure" },
+                { "trachea", "respiratory failure" },
+                { "spirometry", "lung diseases" },
+                { "sputum", "pneumonia" },
+                { "ventilation", "respiratory failure" },
+                { "vital capacity", "respiratory failure" },
+                { "sleep apnea", "respiratory failure" },
+                { "smoking", "lung cancer" },
+                { "wheezing", "asthma" },
+                { "cyanosis", "respiratory distress syndrome" },
+                { "hypoxia", "respiratory distress syndrome" },
+                { "hypoxemia", "respiratory distress syndrome" },
+                { "dyspnea", "respiratory failure" },
+                { "pleurisy", "pneumonia" },
+                { "pulmonary embolism", "pulmonary embolism" },
+                { "pulmonary fibrosis", "lung diseases" },
+                { "pulmonary hypertension", "lung diseases" },
+                { "pulmonary", "lung diseases" },
+                { "bronchitis", "bronchitis" },
+                { "asthma", "asthma" },
+                { "emphysema", "chronic obstructive pulmonary disease" },
+                { "pneumonia", "pneumonia" },
+                { "respiratory syncytial virus", "pneumonia" },
+                { "sarcoidosis", "lung diseases" },
+                { "influenza", "bronchitis" },
+                { "tuberculosis", "tuberculosis" },
+                { "cough", "bronchitis" },
+                { "chest", "bronchitis" },
+                { "respiratory distress syndrome", "respiratory distress syndrome" },
+                { "respiratory failure", "respiratory failure" },
+                { "lung", "lung diseases" },
+                { "breathing", "respiratory failure" },
+                { "breath", "respiratory failure" },
+                { "breathe", "respiratory failure" },
+                { "respiratory", "respiratory failure" }
+            };
+
+            // Check if the input matches any keywords
+            foreach (var keyword in manualMapping.Keys.OrderByDescending(k => k.Length))
+            {
+                if (input.Contains(keyword))
+                {
+                    return manualMapping[keyword];
+                }
             }
+
+            // If no match is found, return a default value
+            return "respiratory";
         }
 
-        private string ExtractRelevantInfo(string data, string topic)
+        private string ExtractRelevantInfo(string plainTextData, string topic)
         {
-            // Split the data into paragraphs
-            string[] paragraphs = data.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+            // Split the data into paragraphs, ensuring no empty entries
+            string[] paragraphs = plainTextData.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
 
-            // Filter the paragraphs based on the topic
-            var relevantParagraphs = paragraphs.Where(p => p.Contains(topic, StringComparison.OrdinalIgnoreCase) 
-            || _respData.Any(keyword => p.Contains(keyword, StringComparison.OrdinalIgnoreCase))).ToArray();
-
-            Console.WriteLine("Relevant information found:");
-            foreach (string paragraph in relevantParagraphs)
-            {
-                Console.WriteLine(paragraph);
-            }
+            // Check for paragraphs that include the specific ID or topic
+            var relevantParagraphs = paragraphs.Where(p => p.Contains($"id=\"{topic}\"", StringComparison.OrdinalIgnoreCase)
+                || p.Contains(topic, StringComparison.OrdinalIgnoreCase)).ToArray();
 
             if (relevantParagraphs.Length == 0)
             {
                 return "No relevant information found.";
             }
 
-            // Return the relevant information
-            string firstParagraph = relevantParagraphs[0];
-            string firstSentence = firstParagraph.Split('.').FirstOrDefault()?.Trim() + ".";
-            return firstSentence;
-        }
+            // Ensure that the first relevant paragraph is meaningful and not just a header
+            string firstParagraph = relevantParagraphs.FirstOrDefault(p => p.Split('.').Length > 1)?.Trim();
 
-        // Define the data classes
-        public class TopicData
-        {
-            public string? Topic { get; set; }
-        }
+            if (string.IsNullOrEmpty(firstParagraph))
+            {
+                return "No relevant information found.";
+            }
 
-        public class ClusterPrediction
-        {
-            [ColumnName("PredictedLabel")]
-            public uint PredictedLabel { get; set; }
+            return firstParagraph;
         }
     }
 }

@@ -5,26 +5,49 @@ namespace AI_Medical_Chatbot
 {
     class Program
     {
-        private static readonly UserService userService = new UserService();
-        public static async Task Main(string[] args)
+        static async Task Main(string[] args)
         {
-            // Assuming you have some mechanism for registering users
-            Console.WriteLine("User Alice has been registered.");
-            
-            // Simulate user asking a question
-            Console.WriteLine($"Alice is asking a question:");
-            string userQuestion = "What is heart disease?";
+            // Initialize user service and chat component
+            UserService_I userService = new DatabaseUserService();
+            ChatComponent chatComponent = ChatComponent.GetInstance(new DatabaseConvoService());
 
-            // Display the user’s question
-            Console.WriteLine($"Displaying the conversation:");
-            Console.WriteLine($"User: " + userQuestion);
+            // Register a new user (Alice) and simulate a conversation
+            userService.RegisterUser("Alice");
+            User alice = userService.GetUser(1); // Assuming Alice gets UserID 1
 
-            // Fetch and display the AI response
-            TopicRecogniser topicRecogniser = new TopicRecogniser();
-            string response = await topicRecogniser.RecogniseAndRespond(userQuestion);
+            if (alice != null)
+            {
+                // Create a new conversation for Alice
+                chatComponent.CreateNewConvo();
+                
+                // Start conversation loop
+                bool continueChatting = true;
 
-            // Display the AI's response in the conversation
-            Console.WriteLine("AI Response: " + response);
+                while (continueChatting)
+                {
+                    Console.WriteLine("\nAlice is asking a question (type 'exit' to stop): ");
+                    string question = Console.ReadLine(); // Take user input from the console
+
+                    // Check if the user wants to exit
+                    if (question.ToLower() == "exit")
+                    {
+                        continueChatting = false;
+                        Console.WriteLine("Ending conversation.");
+                    }
+                    else
+                    {
+                        // Ask the chatbot and process response
+                        chatComponent.AskChatbot(alice, question);
+
+                        // Display the conversation history
+                        chatComponent.DisplayConvo();
+                    }
+                }
+            }
+            else
+            {
+                Console.WriteLine("User Alice was not found.");
+            }
         }
     }
 }

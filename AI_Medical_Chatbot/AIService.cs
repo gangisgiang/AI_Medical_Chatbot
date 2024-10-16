@@ -9,15 +9,18 @@ namespace AI_Medical_Chatbot
 {
     public abstract class AIService
     {
-		protected ApiAdapter _apiAdapter;
-		public AIService()
-		{
-			_apiAdapter = new ApiAdapter();
-		}
+        protected ApiAdapter _apiAdapter;
+        
+        public AIService()
+        {
+            _apiAdapter = new ApiAdapter();
+        }
+
         // Abstract method to be implemented by each AIService subclass
         protected async Task<string> FetchandConvert(string topic)
         {
-            string rawHtmlData = await _apiAdapter.FetchData("cardiovascular");
+            // Use the dynamically passed topic (either cardiovascular or respiratory)
+            string rawHtmlData = await _apiAdapter.FetchData(topic);
             return _apiAdapter.ConvertHtmlToPlainText(rawHtmlData);
         }
     }

@@ -1,9 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "U3ki/tXJlOk=",
+  "dgSpecHash": "M+8Ud5Kgr8A=",
   "success": true,
   "projectFilePath": "/Users/guest1/Documents/OOP/AI_Medical_Chatbot/AI_Medical_Chatbot/AI_Medical_Chatbot.csproj",
   "expectedPackageFiles": [
+    "/Users/guest1/.nuget/packages/htmlagilitypack/1.11.67/htmlagilitypack.1.11.67.nupkg.sha512",
     "/Users/guest1/.nuget/packages/microsoft.ml/3.0.1/microsoft.ml.3.0.1.nupkg.sha512",
     "/Users/guest1/.nuget/packages/microsoft.ml.cpumath/3.0.1/microsoft.ml.cpumath.3.0.1.nupkg.sha512",
     "/Users/guest1/.nuget/packages/microsoft.ml.dataview/3.0.1/microsoft.ml.dataview.3.0.1.nupkg.sha512",

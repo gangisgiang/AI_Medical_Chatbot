@@ -22,8 +22,7 @@ namespace AI_Medical_Chatbot
                 // }
 
                 // Build the file path from the topic name (similar to the URL structure)
-                string filePath = $"/Users/guest1/Downloads/healthTopics&term={topic}.html";
-
+                string filePath = "/Users/guest1/Downloads/API/healthTopics&term=" + topic + ".html";
                 if (File.Exists(filePath))
                 {
                     string htmlContent = await File.ReadAllTextAsync(filePath);

@@ -9,24 +9,17 @@ namespace AI_Medical_Chatbot
 {
     public class CardioAIService : AIService, IAIResponse
     {
-        private readonly List<string> _cardioData = new List<string>
-        {
-            "heart", "hypertension", "blood pressure", "stroke", "cardiovascular system",
-            "cardio", "cholesterol", "cardiac", "cardiology", "cardiologist",
-            "cardiomyopathy", "cardiopulmonary", "cardiorespiratory", "atherosclerosis",
-            "myocardial infarction", "arrhythmia", "heart attack", "congestive heart failure",
-            "vascular disease", "endocarditis", "heart valve disease", "coronary artery disease"
-        };
-
         public async Task<string> GenerateResponse(string message)
         {
-            if (_cardioData.Count == 0)
-            {
-                return await FetchandConvert("cardiovascular");
-            }
-
             // Cluster the input and return cardio-related information
             string cluster = ClusterCardioTopic(message);
+            string topic = "cardiovascular";
+
+            // if (cluster.Contains(" "))
+            // {
+            //     cluster = cluster.Replace(" ", "-");
+            // }
+
             Console.WriteLine("Cluster: " + cluster);
 
             if (string.IsNullOrEmpty(cluster))
@@ -34,7 +27,7 @@ namespace AI_Medical_Chatbot
                 return await FetchandConvert("cardiovascular");
             }
 
-            string plainTextData = await FetchandConvert(cluster);
+            string plainTextData = await FetchandConvert(topic);
 
             string relevantInfo = ExtractRelevantInfo(plainTextData, cluster);
 
@@ -48,88 +41,69 @@ namespace AI_Medical_Chatbot
 
         private string ClusterCardioTopic(string input)
         {
-            MLContext mlContext = new MLContext();
-            List<TopicData> data = _cardioData.Select(x => new TopicData { Topic = x }).ToList();
-            IDataView dataView = mlContext.Data.LoadFromEnumerable(data);
+            // Convert input to lowercase to ensure case-insensitive matching
+            input = input.ToLower();
 
-            var pipeline = mlContext.Transforms.Text.FeaturizeText("Features", nameof(TopicData.Topic)).
-              Append(mlContext.Clustering.Trainers.KMeans("Features", numberOfClusters: 1));
-
-            var model = pipeline.Fit(dataView);
-            var predictionEngine = mlContext.Model.CreatePredictionEngine<TopicData, ClusterPrediction>(model);
-
-            TopicData inputTopic = new TopicData { Topic = input };
-            ClusterPrediction prediction = predictionEngine.Predict(inputTopic);
-
-            switch (prediction.PredictedLabel)
+            // Define a manual mapping for keywords to topics based on the file content
+            var manualMapping = new Dictionary<string, string>
             {
-                case 1:
-                //     return "heart disease";
-                // case 2:
-                //     return "cardiovascular system";
-                // case 3:
-                //     return "blood pressure";
-                // case 4:
-                //     return "stroke";
-                // case 5:
-                //     return "cholesterol";
-                // case 6:
-                //     return "arrhythmia";
-                // case 7:
-                //     return "congestive heart failure";
-                // case 8:
-                //     return "heart valve disease";
-                // case 9:
-                //     return "vascular disease";
-                // case 10:
-                    return "cardiovascular";
-                default:
-                    return string.Empty;
+                { "heart valve disease", "heart valve diseases" },  // More specific
+                { "heart surgery", "heart surgery" },
+                { "heart disease", "heart diseases" },               // More specific
+                { "heart attack", "heart diseases" },               // More specific
+                { "myocardial infarction", "heart diseases" },      // More specific
+                { "congenital heart disease", "ongenital heart disease" },     // More specific
+                { "coronary artery disease", "coronary artery disease" }, // More specific
+                { "vascular disease", "vascular diseases" },
+                { "valve", "heart valve diseases" },
+                { "arrhythmia", "arrhythmia" },
+                { "stroke", "stroke" },
+                { "prehypertension", "prehypertension" },
+                { "hypertension", "hypertension" },
+                { "blood pressure", "blood pressure" },
+                { "cholesterol", "cholesterol" },
+                { "atherosclerosis", "atherosclerosis" },
+                { "heart", "heart health" },                        // General term, should match last
+                { "cardiovascular system", "cardiovascular system" },
+                { "cardio", "cardiovascular system" }
+            };
+
+            // Check if the input matches any keywords
+            foreach (var keyword in manualMapping.Keys.OrderByDescending(k => k.Length))
+            {
+                if (input.Contains(keyword))
+                {
+                    return manualMapping[keyword];
+                }
             }
+
+            // If no match is found, return an empty string or a default topic
+            return "cardiovascular";
         }
 
         private string ExtractRelevantInfo(string plainTextData, string topic)
         {
-            // Split the data into paragraphs
+            // Split the data into paragraphs, ensuring no empty entries
             string[] paragraphs = plainTextData.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
 
-            // Filter paragraphs containing the topic or related information
-            var relevantParagraphs = paragraphs.Where(p => p.Contains(topic, StringComparison.OrdinalIgnoreCase) 
-            || _cardioData.Any(keyword => p.Contains(keyword, StringComparison.OrdinalIgnoreCase))).ToArray();
-
-            Console.WriteLine("Relevant information found:");
-            foreach (var paragraph in paragraphs)
-            {
-                Console.WriteLine(paragraph);
-            }
+            // Ensure that we are using the hyphenated version of the topic to match the section ID
+            var relevantParagraphs = paragraphs.Where(p => p.Contains($"id=\"{topic}\"", StringComparison.OrdinalIgnoreCase)
+                || p.Contains(topic, StringComparison.OrdinalIgnoreCase)).ToArray();
 
             if (relevantParagraphs.Length == 0)
+            {
+                return "No relevant information.";
+            }
+
+            // Ensure that the first relevant paragraph is meaningful and not just a header
+            string firstParagraph = relevantParagraphs.FirstOrDefault(p => p.Split('.').Length > 1)?.Trim();
+
+            if (string.IsNullOrEmpty(firstParagraph))
             {
                 return "No relevant information found.";
             }
 
-            // Return the first sentence of the first relevant paragraph
-            string firstParagraph = relevantParagraphs[0];
-            string firstSentence = firstParagraph.Split('.').FirstOrDefault()?.Trim() + ".";
-            return firstSentence;
-            // Return the relevant information as a short summary or the first paragraph
-            // return relevantParagraphs.Length > 0 ? relevantParagraphs[0] : "No relevant information found.";
-
-            // var paragraphs = plainTextData.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
-            // var relevantParagraphs = paragraphs.Where(p => _respData.Any(keyword => p.Contains(keyword, StringComparison.OrdinalIgnoreCase))).ToArray();
-
-            // return relevantParagraphs.Length == 0 ? "No relevant information found." : relevantParagraphs.First().Split('.').FirstOrDefault()?.Trim() + ".";
-        }
-
-        public class TopicData
-        {
-            public string? Topic { get; set; }
-        }
-
-        public class ClusterPrediction
-        {
-            [ColumnName("PredictedLabel")]
-            public uint PredictedLabel;
+            return firstParagraph;
         }
     }
 }
