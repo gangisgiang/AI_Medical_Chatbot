@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 
 namespace AI_Medical_Chatbot
 {
-    public class TopicRecogniser
+    public class TopicRecogniser : IAIResponse
     {
         public readonly Dictionary<string, string> topicMap = new Dictionary<string, string>()
         {
@@ -28,14 +28,14 @@ namespace AI_Medical_Chatbot
 
             // Neurology Keywords
             {"neurology", "neurology"}, {"brain", "neurology"}, {"nerves", "neurology"}, {"spinal", "neurology"}, {"epilepsy", "neurology"}, 
-            {"seizures", "neurology"}, {"alzheimer", "neurology"}, {"parkinson", "neurology"}, {"multiple sclerosis", "neurology"}, 
+            {"seizures", "neurology"}, {"alzheimer", "neurology"}, {"parkinson", "neurology"}, {"multiple sclerosis", "neurology"}, {"memory", "neurology"},
             {"ms", "neurology"}, {"migraine", "neurology"}, {"headache", "neurology"}, {"neurodegenerative", "neurology"}, {"cord", "neurology" },
             {"neuron", "neurology"}, {"tumor", "neurology"}, {"cognitive", "neurology"}, {"dopamine", "neurology"}, {"motor", "neurology"}, {"nervous", "neurology"},
             
             // Dermatology Keywords
             {"clogged pores", "dermatology"}, {"blackheads", "dermatology"}, {"pimples", "dermatology"}, {"itchy inflamed skin", "dermatology"}, 
             {"dry inflamed skin", "dermatology"}, {"chronic itchy skin", "dermatology"}, {"thick scaly patches", "dermatology"}, 
-            {"skin disorder", "dermatology"}, {"malignant melanoma", "dermatology"}, {"skin cancer", "dermatology"}, 
+            {"skin disorder", "dermatology"}, {"malignant melanoma", "dermatology"}, {"skin cancer", "dermatology"}, {"dermatology", "dermatology"},
             {"abnormal mole growth", "dermatology"}, {"red visible blood vessels", "dermatology"}, {"persistent facial redness", "dermatology"}, 
             {"pus-filled bumps on face", "dermatology"}, {"hair loss", "dermatology"}, {"alopecia areata", "dermatology"}, 
             {"chronic hair thinning", "dermatology"}, {"severe skin allergies", "dermatology"}, {"contact dermatitis from metal", "dermatology"}, 
@@ -44,24 +44,24 @@ namespace AI_Medical_Chatbot
 
             // Rheumatology Keywords
             {"inflammation", "rheumatology"}, {"joints", "rheumatology"}, {"bones", "rheumatology"}, {"muscles", "rheumatology"},
-            {"rheumatoid", "rheumatology"}, {"lupus", "rheumatology"}, {"joint pain", "rheumatology"},
+            {"rheumatoid", "rheumatology"}, {"lupus", "rheumatology"}, {"joint pain", "rheumatology"}, {"rheumatology", "rheumatology"},
             {"gout", "rheumatology"}, {"ankylosing spondylitis", "rheumatology"}, {"psoriatic", "rheumatology"},
             {"arthritis", "rheumatology"}, {"spine fusion", "rheumatology"},
 
             // Oncology Keywords
-            {"breast cancer cells", "oncology"}, {"lung cancer due to smoking", "oncology"}, 
+            {"breast cancer cells", "oncology"}, {"lung cancer due to smoking", "oncology"}, {"oncology", "oncology"},
             {"lung cancer symptoms", "oncology"}, {"prostate gland cancer", "oncology"}, {"prostate cancer male", "oncology"},
             {"blood-forming tissues cancer", "oncology"}, {"leukemia affects bone marrow", "oncology"}, {"blood cell cancer", "oncology"},
             {"melanoma skin pigmentation", "oncology"}, {"skin cancer melanocytes", "oncology"}, {"skin cancer serious", "oncology"},
 
             // Ophthalmology Keywords
-            {"optic nerve", "ophthalmology"}, {"high eye pressure", "ophthalmology"}, {"cloudy lens", "ophthalmology"}, 
+            {"optic nerve", "ophthalmology"}, {"high eye pressure", "ophthalmology"}, {"cloudy lens", "ophthalmology"},
             {"lens clouding", "ophthalmology"}, {"retina damage", "ophthalmology"}, {"central vision loss", "ophthalmology"},
             {"retinal blood vessels", "ophthalmology"}, {"eye blood vessel damage", "ophthalmology"}, {"dry, irritated eyes", "ophthalmology"}, 
-            {"tear film dysfunction", "ophthalmology"}, {"ocular surface", "ophthalmology"},
+            {"tear film dysfunction", "ophthalmology"}, {"ocular", "ophthalmology"}, {"ophthalmology", "ophthalmology"},
 
             // Immunology Keywords
-            {"immune", "immunology"}, {"system", "immunology"}, {"immunity", "immunology"}, 
+            {"immune", "immunology"}, {"system", "immunology"}, {"immunity", "immunology"}, {"immunology", "immunology"},
             {"autoimmune", "immunology"}, {"sclerosis", "immunology"}, {"B-cells", "immunology"},
             {"allergies", "immunology"}, {"pollen", "immunology"}, {"food", "immunology"}, 
             {"immunodeficiency", "immunology"}, {"vaccination", "immunology"}, {"response", "immunology"}, 
@@ -75,14 +75,14 @@ namespace AI_Medical_Chatbot
             {"artery", "nephrology"}, {"stenosis", "nephrology"}, {"nephropathy", "nephrology"}, 
             {"nephron", "nephrology"}, {"glomerulus", "nephrology"}, {"electrolyte", "nephrology"}, 
             {"uremic", "nephrology"}, {"toxins", "nephrology"}, {"diabetic", "nephrology"}, 
-            {"hypertensive", "nephrology"}, {"acute", "nephrology"},
+            {"hypertensive", "nephrology"}, {"acute", "nephrology"}, {"nephrology", "nephrology"},
 
             // Endocrinology Keywords
             {"chronic", "endocrinology"}, {"insulin", "endocrinology"}, {"glucose", "endocrinology"}, {"pancreas", "endocrinology"},
             {"adrenal", "endocrinology"}, {"hormonal", "endocrinology"}, {"imbalances", "endocrinology"}, {"reproductive", "endocrinology"},
             {"abnormal", "endocrinology"}, {"hormone", "endocrinology"}, {"endocrine", "endocrinology"}, {"glands", "endocrinology"},
             {"pituitary", "endocrinology"}, {"overproduction", "endocrinology"}, {"sugar level", "endocrinology"},
-            {"bone", "endocrinology"}, {"fragility", "endocrinology"}, {"density", "endocrinology"},
+            {"bone", "endocrinology"}, {"fragility", "endocrinology"}, {"density", "endocrinology"}, {"endocrinology", "endocrinology"},
             {"thyroid", "endocrinology"}, {"metabolism", "endocrinology"}, {"fractures", "endocrinology"}
         };
 
@@ -110,7 +110,7 @@ namespace AI_Medical_Chatbot
         }
 
         // Recognise the and return the topic of the input
-        public async Task<string> RecogniseAndRespond(string input)
+        public async Task<string> GenerateResponse(string input)
         {
             var (keyword, topic) = PreProcessInput(input);
 

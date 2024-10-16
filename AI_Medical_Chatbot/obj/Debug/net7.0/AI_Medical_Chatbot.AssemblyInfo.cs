@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("AI_Medical_Chatbot")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2ee918e14b0f25ee26ce7fad187aa0ac502751dd")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7876cd588c22f5c37ebb8a84160adfbd146e30d4")]
 [assembly: System.Reflection.AssemblyProductAttribute("AI_Medical_Chatbot")]
 [assembly: System.Reflection.AssemblyTitleAttribute("AI_Medical_Chatbot")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

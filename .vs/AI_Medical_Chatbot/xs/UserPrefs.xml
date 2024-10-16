@@ -1,24 +1,47 @@
 ﻿<Properties StartupConfiguration="{A3F5E60C-2447-474A-A8FA-6E21F6636E37}|Default">
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MultiItemStartupConfigurations />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
-  <MultiItemStartupConfigurations />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.ItemProperties.AI__Medical__Chatbot PreferredExecutionTarget="MonoDevelop.Default" />
   <MonoDevelop.Ide.Workbench ActiveDocument="AI_Medical_Chatbot/Program.cs">
     <Files>
-      <File FileName="AI_Medical_Chatbot/Program.cs" Line="10" Column="24" />
-      <File FileName="AI_Medical_Chatbot/User.cs" />
+      <File FileName="AI_Medical_Chatbot/Program.cs" Line="12" Column="10" />
+      <File FileName="AI_Medical_Chatbot/User.cs" Line="1" Column="1" />
       <File FileName="AI_Medical_Chatbot/UserService.cs" />
-      <File FileName="AI_Medical_Chatbot/ChatComponent.cs" />
-      <File FileName="AI_Medical_Chatbot/MessageProcessor.cs" />
+      <File FileName="AI_Medical_Chatbot/ChatComponent.cs" Line="1" Column="1" />
+      <File FileName="AI_Medical_Chatbot/MessageProcessor.cs" Line="12" Column="2" />
       <File FileName="AI_Medical_Chatbot/Message.cs" />
-      <File FileName="AI_Medical_Chatbot/Conversation.cs" />
-      <File FileName="AI_Medical_Chatbot/UserService_I.cs" />
+      <File FileName="AI_Medical_Chatbot/Conversation.cs" Line="1" Column="1" />
+      <File FileName="AI_Medical_Chatbot/UserService_I.cs" Line="1" Column="1" />
+      <File FileName="AI_Medical_Chatbot/RheumatologyAIService.cs" Line="1" Column="4" />
+      <File FileName="AI_Medical_Chatbot/users.json" Line="1" Column="1" />
+      <File FileName="AI_Medical_Chatbot/ImmunologyAIService.cs" Line="14" Column="16" />
+      <File FileName="AI_Medical_Chatbot/convoCount.txt" Line="1" Column="1" />
+      <File FileName="AI_Medical_Chatbot/DatabaseConvoService.cs" Line="30" Column="2" />
+      <File FileName="AI_Medical_Chatbot/CardioAIService.cs" Line="82" Column="2" />
+      <File FileName="AI_Medical_Chatbot/AIService.cs" Line="54" Column="2" />
+      <File FileName="AI_Medical_Chatbot/AIServiceFactory.cs" Line="1" Column="1" />
+      <File FileName="AI_Medical_Chatbot/ApiAdapter.cs" Line="63" Column="2" />
+      <File FileName="AI_Medical_Chatbot/DatabaseUserService.cs" Line="61" Column="1" />
+      <File FileName="AI_Medical_Chatbot/DermatologyAIService.cs" Line="126" Column="5" />
+      <File FileName="AI_Medical_Chatbot/EndocrinologyAIService.cs" Line="1" Column="4" />
+      <File FileName="AI_Medical_Chatbot/IAIResponse.cs" Line="1" Column="1" />
+      <File FileName="AI_Medical_Chatbot/NephrologyAIService.cs" Line="1" Column="4" />
+      <File FileName="AI_Medical_Chatbot/OncologyAIService.cs" Line="1" Column="4" />
+      <File FileName="AI_Medical_Chatbot/NeuroAIService.cs" Line="114" Column="5" />
+      <File FileName="AI_Medical_Chatbot/OphthalmologyAIService.cs" Line="1" Column="4" />
+      <File FileName="AI_Medical_Chatbot/RespAIService.cs" Line="1" Column="1" />
+      <File FileName="AI_Medical_Chatbot/TopicRecogniser.cs" Line="137" Column="2" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
-          <Node name="AI_Medical_Chatbot">
+          <Node name="AI_Medical_Chatbot" expanded="True">
             <Node name="AI_Medical_Chatbot">
+              <Node name="Dependencies" expanded="True" />
               <Node name="Program.cs" selected="True" />
             </Node>
           </Node>
@@ -26,7 +49,4 @@
       </Pad>
     </Pads>
   </MonoDevelop.Ide.Workbench>
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.ItemProperties.AI__Medical__Chatbot PreferredExecutionTarget="MonoDevelop.Default" />
-  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
 </Properties>

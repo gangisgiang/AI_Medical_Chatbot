@@ -18,7 +18,7 @@ namespace AI_Medical_Chatbot
                     return new DermatologyAIService();
                 case "endocrine":
                     return new EndocrinologyAIService();
-                case "immune":
+                case "immunology":
                     return new ImmunologyAIService();
                 case "nephrology":
                     return new NephrologyAIService();

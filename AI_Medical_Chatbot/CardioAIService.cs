@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.ML;
-using Microsoft.ML.Data;
 
 namespace AI_Medical_Chatbot
 {
@@ -12,7 +10,7 @@ namespace AI_Medical_Chatbot
         public async Task<string> GenerateResponse(string message)
         {
             // Cluster the input and return cardio-related information
-            string cluster = ClusterCardioTopic(message);
+            string cluster = ClusterTopic(message);
             string topic = "cardiovascular";
 
             // if (cluster.Contains(" "))
@@ -39,7 +37,7 @@ namespace AI_Medical_Chatbot
             return relevantInfo;
         }
 
-        private string ClusterCardioTopic(string input)
+        public override string ClusterTopic(string input)
         {
             // Convert input to lowercase to ensure case-insensitive matching
             input = input.ToLower();
@@ -79,31 +77,6 @@ namespace AI_Medical_Chatbot
 
             // If no match is found, return an empty string or a default topic
             return "cardiovascular";
-        }
-
-        private string ExtractRelevantInfo(string plainTextData, string topic)
-        {
-            // Split the data into paragraphs, ensuring no empty entries
-            string[] paragraphs = plainTextData.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
-
-            // Ensure that we are using the hyphenated version of the topic to match the section ID
-            var relevantParagraphs = paragraphs.Where(p => p.Contains($"id=\"{topic}\"", StringComparison.OrdinalIgnoreCase)
-                || p.Contains(topic, StringComparison.OrdinalIgnoreCase)).ToArray();
-
-            if (relevantParagraphs.Length == 0)
-            {
-                return "No relevant information.";
-            }
-
-            // Ensure that the first relevant paragraph is meaningful and not just a header
-            string firstParagraph = relevantParagraphs.FirstOrDefault(p => p.Split('.').Length > 1)?.Trim();
-
-            if (string.IsNullOrEmpty(firstParagraph))
-            {
-                return "No relevant information found.";
-            }
-
-            return firstParagraph;
         }
     }
 }

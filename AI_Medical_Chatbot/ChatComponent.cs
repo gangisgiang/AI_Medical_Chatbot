@@ -13,12 +13,12 @@ namespace AI_Medical_Chatbot
 		private readonly TopicRecogniser topicRecogniser = new TopicRecogniser();
 		private int convoCount = 0;
 		public List<Conversation> ConversationList { get; set; } = new List<Conversation>();
-		private readonly DatabaseConvoService databaseconvoService = new DatabaseConvoService();
+		// private readonly DatabaseConvoService dbService = new DatabaseConvoService();
 		private const string convoCountFile = "convoCount.txt";
 
 		private ChatComponent(DatabaseConvoService dbService)
 		{
-			databaseconvoService = dbService;
+			// databaseconvoService = dbService;
 			// Load conversations from the database
 			LoadConversations();
 			LoadConvoCount();
@@ -50,7 +50,7 @@ namespace AI_Medical_Chatbot
 
 		public async Task ProcessResponse(User user, string text)
 		{
-			string response = await topicRecogniser.RecogniseAndRespond(text);
+			string response = await topicRecogniser.GenerateResponse(text);
 			ChatbotAnswer(user, response);
 		}
 
