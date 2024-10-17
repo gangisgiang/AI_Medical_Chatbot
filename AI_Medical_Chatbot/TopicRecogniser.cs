@@ -55,7 +55,7 @@ namespace AI_Medical_Chatbot
             {"melanoma skin pigmentation", "oncology"}, {"skin cancer melanocytes", "oncology"}, {"skin cancer serious", "oncology"},
 
             // Ophthalmology Keywords
-            {"optic nerve", "ophthalmology"}, {"high eye pressure", "ophthalmology"}, {"cloudy lens", "ophthalmology"},
+            {"optic nerve", "ophthalmology"}, {"high eye pressure", "ophthalmology"}, {"cloudy lens", "ophthalmology"}, {"eye", "ophthalmology"},
             {"lens clouding", "ophthalmology"}, {"retina damage", "ophthalmology"}, {"central vision loss", "ophthalmology"},
             {"retinal blood vessels", "ophthalmology"}, {"eye blood vessel damage", "ophthalmology"}, {"dry, irritated eyes", "ophthalmology"}, 
             {"tear film dysfunction", "ophthalmology"}, {"ocular", "ophthalmology"}, {"ophthalmology", "ophthalmology"},

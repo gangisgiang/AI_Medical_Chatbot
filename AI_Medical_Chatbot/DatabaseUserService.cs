@@ -2,55 +2,103 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
-using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
 
 namespace AI_Medical_Chatbot
 {
-    public class DatabaseUserService : UserService_I
+    public class DatabaseUserService
     {
-        private readonly string UsersPath = "users.json";
-		private List<User> Users = new List<User>();
-		
-		public DatabaseUserService()
-		{
-			// Load users from the database
-			LoadUsers();    
-		}
+        private const string UsersPath = "users.json";
+        private List<User> Users = new List<User>();
+        private EmailService _emailService;
 
-		public void RegisterUser(string username)
-		{
-			// if the user is already registered, return
-			foreach (User existingUser in Users)
-			{
-				if (existingUser.Username == username)
-				{
-					Console.WriteLine("User " + existingUser.Username + " is already registered.");
-					return;
-				}
-			}
+        public DatabaseUserService(EmailService emailService)
+        {
+            _emailService = emailService;
+            LoadUsers();
+        }
 
-			User user = new User(username, Users.Count + 1);
-			Users.Add(user);
-			Console.WriteLine("User " + user.Username + " has been registered.");
-			SaveUsers();
-		}
-        
-		private void SaveUsers()
-		{
-			string json = JsonSerializer.Serialize(Users);
-			File.WriteAllText(UsersPath, json);
-		}
+        public void RegisterUser(string username, string password, string email)
+        {
+            if (!IsValidEmail(email))
+            {
+                Console.WriteLine("Invalid email format.");
+                return;
+            }
 
-        public User GetUser(int userID)
+            foreach (User existingUser in Users)
+            {
+                if (existingUser.Username == username)
+                {
+                    Console.WriteLine("Username already exists. Please choose another.");
+                    return;
+                }
+            }
+
+            // Create new user with Username, Password, and Email
+            User newUser = new User(Users.Count + 1, username, password, email);
+            Users.Add(newUser);
+            SaveUsers();
+            Console.WriteLine("User registered successfully.");
+        }
+
+        public User LoginUser(string username, string password)
         {
             foreach (User user in Users)
             {
-                if (user.UserID == userID)
+                if (user.Username == username && user.Password == password)
                 {
                     return user;
                 }
             }
+            Console.WriteLine("Invalid username or password.");
             return null;
+        }
+
+        public void ResetPassword(string email, EmailService emailService)
+        {
+            User user = Users.Find(u => u.Email == email);
+
+            if (user == null)
+            {
+                Console.WriteLine("Email not found.");
+                return;
+            }
+
+            string resetCode = GenerateResetCode();
+            emailService.SendEmail(email, "Password Reset Code", $"Your password reset code is: {resetCode}");
+            Console.WriteLine("A reset code has been sent to your email. Please enter the code to proceed.");
+        }
+
+        private string GenerateResetCode()
+        {
+            Random random = new Random();
+            return random.Next(100000, 999999).ToString(); // Generates a 6-digit reset code.
+        }
+
+        private bool IsValidEmail(string email)
+        {
+            return Regex.IsMatch(email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$");
+        }
+
+        public void SendEmail(string email, string subject, string body)
+        {
+            try
+            {
+                // For demo purposes, just display the email content
+                Console.WriteLine($"Sending email to {email}: \nSubject: {subject}\nBody: {body}");
+                // In a real system, you'd use an SMTP client to send an email
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to send email. Error: {ex.Message}");
+            }
+        }
+
+        private void SaveUsers()
+        {
+            string json = JsonSerializer.Serialize(Users);
+            File.WriteAllText(UsersPath, json);
         }
 
         private void LoadUsers()
@@ -59,10 +107,6 @@ namespace AI_Medical_Chatbot
             {
                 string json = File.ReadAllText(UsersPath);
                 Users = JsonSerializer.Deserialize<List<User>>(json) ?? new List<User>();
-            }
-            else
-            {
-                Users = new List<User>();
             }
         }
     }

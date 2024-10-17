@@ -3,18 +3,16 @@ namespace AI_Medical_Chatbot
 {
 	public class Message
 	{
-		public int SenderID { get; set; }
-		public int ReceiverID { get; set; }
 		public string Text { get; set; }
-		public DateTime Time { get; set; }
+        public int SenderID { get; set; }
+        public int ReceiverID { get; set; }
 
-		public Message(string text, int senderID, int receiverID)
-		{
-			Text = text;
-			SenderID = senderID;
-			ReceiverID = receiverID;
-			Time = DateTime.Now;
-		}
+		public Message(string text, int senderId, int receiverId)
+        {
+            Text = text;
+            SenderID = senderId;
+            ReceiverID = receiverId;
+        }
 		
 		public void Sender()
 		{

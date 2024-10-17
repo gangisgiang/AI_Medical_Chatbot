@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 
 namespace AI_Medical_Chatbot
 {
-    public interface UserService_I
+    public abstract class Command
     {
-        void RegisterUser(string username);
-        User GetUser(int userID);
+        public abstract void Execute();
     }
+
 }

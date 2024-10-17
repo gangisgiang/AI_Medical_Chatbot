@@ -47,7 +47,7 @@ namespace AI_Medical_Chatbot
             {
                 { "heart valve disease", "heart valve diseases" },  // More specific
                 { "heart surgery", "heart surgery" },
-                { "heart disease", "heart diseases" },               // More specific
+                { "heart disease", "heart disease" },               // More specific
                 { "heart attack", "heart diseases" },               // More specific
                 { "myocardial infarction", "heart diseases" },      // More specific
                 { "congenital heart disease", "ongenital heart disease" },     // More specific

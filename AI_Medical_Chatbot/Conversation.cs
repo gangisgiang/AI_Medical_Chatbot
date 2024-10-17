@@ -1,31 +1,31 @@
 ﻿using System;
+using System.Collections.Generic;
+
 namespace AI_Medical_Chatbot
 {
-	public class Conversation
-	{
-		public int ConvoID { get;}
-		public string ConvoName { get; set; }
-		public List<Message> Messages { get; set; } = new List<Message>();
+    public class Conversation
+    {
+        public Guid ConvoID { get; } // Unique identifier for each conversation
+        public string ConvoName { get; set; }
+        public List<Message> Messages { get; set; } = new List<Message>();
 
-		public Conversation(int convoID, string convoName)
-		{
-			ConvoID = convoID;
-			ConvoName = convoName;
-		}
+        public Conversation(Guid convoID, string convoName)
+        {
+            ConvoID = convoID;
+            ConvoName = convoName;
+        }
 
-		public void AddMessage(Message message)
-		{
-			// Add message to the conversation
-			Messages.Add(message);
-		}
+        public void AddMessage(Message message)
+        {
+            Messages.Add(message);
+        }
 
-		// Display the message in the conversation
-		public void DisplayMessages()
-		{
-			foreach (Message message in Messages)
-			{
-				message.Sender();
-			}
-		}
-	}
+        public void DisplayMessages()
+        {
+            foreach (var message in Messages)
+            {
+                message.Sender();
+            }
+        }
+    }
 }
