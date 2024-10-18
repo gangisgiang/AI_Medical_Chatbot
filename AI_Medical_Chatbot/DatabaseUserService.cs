@@ -11,6 +11,7 @@ namespace AI_Medical_Chatbot
         private const string UsersPath = "users.json";
         private List<User> Users = new List<User>();
         private EmailService _emailService;
+        private Dictionary<string, string> resetCodeMap = new Dictionary<string, string>();
 
         public DatabaseUserService(EmailService emailService)
         {
@@ -57,17 +58,41 @@ namespace AI_Medical_Chatbot
 
         public void ResetPassword(string email, EmailService emailService)
         {
+            // Find the user by email
             User user = Users.Find(u => u.Email == email);
-
             if (user == null)
             {
                 Console.WriteLine("Email not found.");
                 return;
             }
 
+            // Generate a reset code
             string resetCode = GenerateResetCode();
-            emailService.SendEmail(email, "Password Reset Code", $"Your password reset code is: {resetCode}");
-            Console.WriteLine("A reset code has been sent to your email. Please enter the code to proceed.");
+
+            // Store the reset code temporarily
+            if (resetCodeMap.ContainsKey(email))
+            {
+                resetCodeMap[email] = resetCode;
+            }
+            else
+            {
+                resetCodeMap.Add(email, resetCode);
+            }
+
+            // Send the reset code to the user's email
+            emailService.SendEmail(email, "Password Reset Code", "Your password reset code is: " + resetCode);
+            Console.WriteLine("A reset code has been sent to your email.");
+        }
+
+        public bool VerifyResetCode(string email, string enteredCode)
+        {
+            // Check if the entered code matches the stored code
+            if (resetCodeMap.ContainsKey(email) && resetCodeMap[email] == enteredCode)
+            {
+                resetCodeMap.Remove(email); // Remove code after it's used
+                return true;
+            }
+            return false;
         }
 
         private string GenerateResetCode()
@@ -76,23 +101,25 @@ namespace AI_Medical_Chatbot
             return random.Next(100000, 999999).ToString(); // Generates a 6-digit reset code.
         }
 
+        public void SetNewPassword(string email, string newPassword)
+        {
+            // Find the user and update their password
+            User user = Users.Find(u => u.Email == email);
+            if (user != null)
+            {
+                user.Password = newPassword;
+                SaveUsers();
+                Console.WriteLine("Password updated successfully.");
+            }
+            else
+            {
+                Console.WriteLine("User not found.");
+            }
+        }
+
         private bool IsValidEmail(string email)
         {
             return Regex.IsMatch(email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$");
-        }
-
-        public void SendEmail(string email, string subject, string body)
-        {
-            try
-            {
-                // For demo purposes, just display the email content
-                Console.WriteLine($"Sending email to {email}: \nSubject: {subject}\nBody: {body}");
-                // In a real system, you'd use an SMTP client to send an email
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Failed to send email. Error: {ex.Message}");
-            }
         }
 
         private void SaveUsers()

@@ -86,10 +86,35 @@ namespace AI_Medical_Chatbot
             }
         }
 
+        // Password Reset Function
         private void ResetPassword()
         {
             string email = GetUserInput("Enter your email to reset your password: ");
+            
+            // Step 1: Send reset code to email
             _userService.ResetPassword(email, _emailService);
+
+            // Step 2: Ask the user for the reset code
+            string enteredCode = GetUserInput("Enter the reset code sent to your email: ");
+
+            // Step 3: Verify the reset code
+            if (_userService.VerifyResetCode(email, enteredCode))
+            {
+                Console.WriteLine("Reset code verified.");
+
+                // Step 4: Allow the user to set a new password
+                string newPassword = GetUserInput("Enter your new password: ");
+
+                // Step 5: Update password in the database
+                _userService.SetNewPassword(email, newPassword);
+
+                // Step 6: Log in with the new password
+                Console.WriteLine("Your password has been reset. You can now log in with your new password.");
+            }
+            else
+            {
+                Console.WriteLine("Invalid reset code. Please try again.");
+            }
         }
 
         private void ShowUserMenu()
