@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Text.Json;
 using System.Threading.Tasks;
+using System.Text.Json;
+using System.IO;
 using System.Linq;
 
 namespace AI_Medical_Chatbot
@@ -11,13 +11,13 @@ namespace AI_Medical_Chatbot
     {
         private static ChatComponent? _instance;
         private readonly TopicRecogniser topicRecogniser = new TopicRecogniser();
-        public List<Conversation> ConversationList { get; set; } = new List<Conversation>();
+        public List<Conversation> ConversationList { get; private set; } = new List<Conversation>();
         private readonly DatabaseConvoService dbService;
 
         private ChatComponent(DatabaseConvoService dbService)
         {
             this.dbService = dbService;
-            LoadConversations();
+            LoadConversations(); // Load conversations when the instance is created
         }
 
         public static ChatComponent GetInstance(DatabaseConvoService dbService)
@@ -79,7 +79,8 @@ namespace AI_Medical_Chatbot
             // Add message to the latest conversation
             if (ConversationList.Count > 0)
             {
-                ConversationList[ConversationList.Count - 1].AddMessage(message);
+                ConversationList[^1].AddMessage(message); // Use ^1 for the last item
+                SaveConversations(); // Save after adding the message
             }
 
             // Process chatbot response asynchronously
@@ -99,7 +100,8 @@ namespace AI_Medical_Chatbot
 
             if (ConversationList.Count > 0)
             {
-                ConversationList[ConversationList.Count - 1].AddMessage(message);
+                ConversationList[^1].AddMessage(message); // Use ^1 for the last item
+                SaveConversations(); // Save after chatbot's response
             }
         }
 
@@ -108,6 +110,7 @@ namespace AI_Medical_Chatbot
             string convoName = $"Conversation ({Guid.NewGuid()})"; // Unique ID
             Conversation convo = new Conversation(Guid.NewGuid(), convoName);
             ConversationList.Add(convo);
+            SaveConversations(); // Save after creating the new conversation
             Console.WriteLine($"{convoName} created.");
         }
 
@@ -141,7 +144,6 @@ namespace AI_Medical_Chatbot
 
         public void RenameConvo(Guid convoId, string newName)
         {
-            // Find the conversation by ConvoID
             var conversation = ConversationList.FirstOrDefault(c => c.ConvoID == convoId);
 
             if (conversation == null)
@@ -150,8 +152,8 @@ namespace AI_Medical_Chatbot
                 return;
             }
 
-            // Rename the conversation
             conversation.ConvoName = newName;
+            SaveConversations(); // Save after renaming
             Console.WriteLine($"Conversation renamed to: {newName}");
         }
 
@@ -183,7 +185,6 @@ namespace AI_Medical_Chatbot
 
         public void DeleteConvo(Guid convoId)
         {
-            // Find the conversation by ConvoID
             var conversation = ConversationList.FirstOrDefault(c => c.ConvoID == convoId);
 
             if (conversation == null)
@@ -192,16 +193,16 @@ namespace AI_Medical_Chatbot
                 return;
             }
 
-            // Delete the conversation
-            Console.WriteLine($"{conversation.ConvoName} deleted.");
             ConversationList.Remove(conversation);
+            SaveConversations(); // Save after deletion
+            Console.WriteLine($"{conversation.ConvoName} deleted.");
         }
 
         public void DisplayConvo()
         {
             if (ConversationList.Count == 0)
             {
-                Console.WriteLine("No conversations available.");
+                Console.WriteLine("No conversation history found.");
                 return;
             }
 
@@ -219,7 +220,7 @@ namespace AI_Medical_Chatbot
 
         private void LoadConversations()
         {
-            ConversationList = dbService.LoadConversations();
+            ConversationList = dbService.LoadConversations() ?? new List<Conversation>();
         }
     }
 }

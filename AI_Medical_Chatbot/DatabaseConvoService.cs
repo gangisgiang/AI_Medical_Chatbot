@@ -11,18 +11,38 @@ namespace AI_Medical_Chatbot
 
         public void SaveConversations(List<Conversation> conversations)
         {
-            string json = JsonSerializer.Serialize(conversations);
-            File.WriteAllText(ConvoPath, json);
+            try
+            {
+                string json = JsonSerializer.Serialize(conversations, new JsonSerializerOptions { WriteIndented = true });
+                File.WriteAllText(ConvoPath, json);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Error saving conversations: " + e.Message);
+            }
         }
 
         public List<Conversation> LoadConversations()
         {
-            if (File.Exists(ConvoPath))
+            try
             {
-                string json = File.ReadAllText(ConvoPath);
-                return JsonSerializer.Deserialize<List<Conversation>>(json) ?? new List<Conversation>();
+                if (!File.Exists(ConvoPath))
+                {
+                    string json = File.ReadAllText(ConvoPath);
+                    var conversations = JsonSerializer.Deserialize<List<Conversation>>(json);
+                    return conversations ?? new List<Conversation>();
+                }
+                else
+                {
+                    Console.WriteLine("No conversation history found.");
+                }
             }
+            catch (Exception e)
+            {
+                Console.WriteLine("Error loading conversations: " + e.Message);
+            }
+
             return new List<Conversation>();
         }
-    }
+    } 
 }

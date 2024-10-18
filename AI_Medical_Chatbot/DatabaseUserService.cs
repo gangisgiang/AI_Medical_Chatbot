@@ -56,14 +56,14 @@ namespace AI_Medical_Chatbot
             return null;
         }
 
-        public void ResetPassword(string email, EmailService emailService)
+        public bool ResetPassword(string email, EmailService emailService)
         {
             // Find the user by email
             User user = Users.Find(u => u.Email == email);
             if (user == null)
             {
                 Console.WriteLine("Email not found.");
-                return;
+                return false;
             }
 
             // Generate a reset code
@@ -82,6 +82,7 @@ namespace AI_Medical_Chatbot
             // Send the reset code to the user's email
             emailService.SendEmail(email, "Password Reset Code", "Your password reset code is: " + resetCode);
             Console.WriteLine("A reset code has been sent to your email.");
+            return true;
         }
 
         public bool VerifyResetCode(string email, string enteredCode)
@@ -98,7 +99,7 @@ namespace AI_Medical_Chatbot
         private string GenerateResetCode()
         {
             Random random = new Random();
-            return random.Next(100000, 999999).ToString(); // Generates a 6-digit reset code.
+            return random.Next(210705, 999999).ToString(); // Generates a 6-digit reset code.
         }
 
         public void SetNewPassword(string email, string newPassword)

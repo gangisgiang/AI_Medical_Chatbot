@@ -91,24 +91,31 @@ namespace AI_Medical_Chatbot
         {
             string email = GetUserInput("Enter your email to reset your password: ");
             
-            // Step 1: Send reset code to email
-            _userService.ResetPassword(email, _emailService);
+            // Send reset code to email
+            bool emailFound = _userService.ResetPassword(email, _emailService);
 
-            // Step 2: Ask the user for the reset code
+            // If the email is not found, return
+            if (!emailFound)
+            {
+                Console.WriteLine("Email not found. Please try again.");
+                return;
+            }
+
+            // Ask the user to enter the reset code
             string enteredCode = GetUserInput("Enter the reset code sent to your email: ");
 
-            // Step 3: Verify the reset code
+            // Verify the reset code
             if (_userService.VerifyResetCode(email, enteredCode))
             {
                 Console.WriteLine("Reset code verified.");
 
-                // Step 4: Allow the user to set a new password
+                // Allow the user to set a new password
                 string newPassword = GetUserInput("Enter your new password: ");
 
-                // Step 5: Update password in the database
+                // Update password in the database
                 _userService.SetNewPassword(email, newPassword);
 
-                // Step 6: Log in with the new password
+                // Log in with the new password
                 Console.WriteLine("Your password has been reset. You can now log in with your new password.");
             }
             else
