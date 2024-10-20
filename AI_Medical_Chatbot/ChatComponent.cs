@@ -11,13 +11,15 @@ namespace AI_Medical_Chatbot
     {
         private static ChatComponent? _instance;
         private readonly TopicRecogniser topicRecogniser = new TopicRecogniser();
-        public List<Conversation> ConversationList { get; private set; } = new List<Conversation>();
+        public Dictionary<string, List<Conversation>> ConversationList;
+        private User currentUser;
         private readonly DatabaseConvoService dbService;
+        private Conversation currentConvo;
 
         private ChatComponent(DatabaseConvoService dbService)
         {
             this.dbService = dbService;
-            LoadConversations(); // Load conversations when the instance is created
+            ConversationList = dbService.LoadConversations(); // Load all conversations for all users
         }
 
         public static ChatComponent GetInstance(DatabaseConvoService dbService)
@@ -29,7 +31,7 @@ namespace AI_Medical_Chatbot
             return _instance;
         }
 
-        public void ShowMainMenu(User user)
+        public void ShowMainMenu()
         {
             Console.WriteLine("Welcome to the AI Medical Chatbot System");
             bool exit = false;
@@ -38,10 +40,11 @@ namespace AI_Medical_Chatbot
             {
                 Console.WriteLine("\nMenu:");
                 Console.WriteLine("1. Start a new conversation");
-                Console.WriteLine("2. Show conversation history");
-                Console.WriteLine("3. Rename a conversation");
-                Console.WriteLine("4. Delete a conversation");
-                Console.WriteLine("5. Exit");
+                Console.WriteLine("2. View conversation history");
+                Console.WriteLine("3. Continue a previous conversation");
+                Console.WriteLine("4. Rename a conversation");
+                Console.WriteLine("5. Delete a conversation");
+                Console.WriteLine("6. Exit");
                 Console.Write("Please select an option: ");
                 
                 string choice = Console.ReadLine();
@@ -52,15 +55,18 @@ namespace AI_Medical_Chatbot
                         CreateNewConvo();
                         break;
                     case "2":
-                        DisplayConvo();
+                        DisplayConvoList();
                         break;
                     case "3":
-                        RenameConvoInterface();
+                        ContinueConversationInterface();
                         break;
                     case "4":
-                        DeleteConvoInterface();
+                        RenameConvoInterface();
                         break;
                     case "5":
+                        DeleteConvoInterface();
+                        break;
+                    case "6":
                         exit = true;
                         Console.WriteLine("Goodbye!");
                         break;
@@ -71,59 +77,206 @@ namespace AI_Medical_Chatbot
             }
         }
 
-        public void AskChatbot(User user, string text)
+        public void SetCurrentUser(User user)
         {
-            Message message = new Message(text, user.UserID, 0);
-            user.MessagesHistory.Add(message);
+            currentUser = user;
+            LoadConversationsForUser();
+        }
 
-            // Add message to the latest conversation
-            if (ConversationList.Count > 0)
+        public void AskChatbot(string text)
+        {
+            if (currentUser == null || currentConvo == null)
             {
-                ConversationList[^1].AddMessage(message); // Use ^1 for the last item
-                SaveConversations(); // Save after adding the message
-            }
+                return;
+            } 
+
+            Message message = new Message(text, currentUser.UserID, 0);
+            currentUser.MessagesHistory.Add(message);
+            currentConvo.AddMessage(message); // Add message to the active conversation
+
+            SaveConversationsForUser(); // Save after adding the message
 
             // Process chatbot response asynchronously
-            Task.Run(async () => await ProcessResponse(user, text));
+            Task.Run(async () => await ProcessResponse(text));
+
         }
 
-        private async Task ProcessResponse(User user, string text)
+        private async Task ProcessResponse(string text)
         {
-            string response = await topicRecogniser.GenerateResponse(text);
-            ChatbotAnswer(user, response);
-        }
-
-        private void ChatbotAnswer(User user, string text)
-        {
-            Message message = new Message(text, 0, user.UserID);
-            user.MessagesHistory.Add(message);
-
-            if (ConversationList.Count > 0)
+            if (currentUser == null || currentConvo == null)
             {
-                ConversationList[^1].AddMessage(message); // Use ^1 for the last item
-                SaveConversations(); // Save after chatbot's response
+                return;
+            }
+
+            string response = await topicRecogniser.GenerateResponse(text);
+            ChatbotAnswer(response);
+        }
+
+        public void DisplayCurrentConvo()
+        {
+            if (currentConvo != null)
+            {
+                Console.WriteLine($"Conversation: {currentConvo.ConvoName}");
+                currentConvo.DisplayMessages();
             }
         }
+
+        private void ChatbotAnswer(string text)
+        {
+            if (currentUser == null || currentConvo == null)
+            {
+                return;
+            }
+
+            Message message = new Message(text, 0, currentUser.UserID);
+            currentUser.MessagesHistory.Add(message);
+            currentConvo.AddMessage(message);
+            SaveConversationsForUser();
+
+            // Display the chatbot's response message only
+            Console.WriteLine($"Chatbot: {text}");
+            Console.WriteLine("Ask your question (or type 'exit' to end): ");
+        }
+
 
         public void CreateNewConvo()
         {
+            if (currentUser == null)
+            {
+                return;
+            }
+
             string convoName = $"Conversation ({Guid.NewGuid()})"; // Unique ID
             Conversation convo = new Conversation(Guid.NewGuid(), convoName);
-            ConversationList.Add(convo);
-            SaveConversations(); // Save after creating the new conversation
+
+            if (!ConversationList.ContainsKey(currentUser.Username))
+            {
+                ConversationList[currentUser.Username] = new List<Conversation>();
+            }
+
+            ConversationList[currentUser.Username].Add(convo);
+            currentConvo = convo;
+            SaveConversationsForUser(); // Save after creating the new conversation
             Console.WriteLine($"{convoName} created.");
+        }
+
+        public void ContinueConversationInterface()
+        {
+            if (currentUser == null || !ConversationList.TryGetValue(currentUser.Username, out List<Conversation>? value) || value.Count == 0)
+            {
+                Console.WriteLine("No conversations to continue.");
+                return;
+            }
+
+            Console.WriteLine("Available Conversations:");
+            foreach (var convo in value)
+            {
+                Console.WriteLine($"- {convo.ConvoName} (ID: {convo.ConvoID})");
+            }
+
+            Console.Write("Enter the ID of the conversation you want to continue: ");
+            string convoIdInput = Console.ReadLine();
+            if (Guid.TryParse(convoIdInput, out Guid convoId))
+            {
+                ContinueConversation(convoId);
+            }
+            else
+            {
+                Console.WriteLine("Invalid ID format.");
+            }
+        }
+
+        public bool ContinueConversation(Guid convoId)
+        {
+            if (currentUser == null || !ConversationList.ContainsKey(currentUser.Username))
+            {
+                Console.WriteLine("No conversation selected.");
+                return false;
+            }
+
+            var userConversations = ConversationList[currentUser.Username];
+
+            var selectedConvo = userConversations.FirstOrDefault(c => c.ConvoID.Equals(convoId));
+
+            if (selectedConvo == null)
+            {
+                Console.WriteLine($"No conversation selected. Debug: Could not find conversation with ID: {convoId}");
+                return false;
+            }
+
+            currentConvo = selectedConvo;
+            Console.WriteLine($"Continuing conversation: {selectedConvo.ConvoName}");
+
+            // Display only the messages from the selected conversation
+            currentConvo.DisplayMessages(); 
+            return true;
+        }
+
+        public void DisplayConvoList()
+        {
+            if (currentUser == null || !ConversationList.TryGetValue(currentUser.Username, out List<Conversation>? value) || value.Count == 0)
+            {
+                Console.WriteLine("No conversation history found.");
+                return;
+            }
+
+            Console.WriteLine("Conversations available:");
+            foreach (var convo in value)
+            {
+                Console.WriteLine($"--- {convo.ConvoName} (ID: {convo.ConvoID}) ---");
+            }
+        }
+
+        public void DisplayConvoMessages(Guid convoId)
+        {
+            if (currentUser == null || !ConversationList.TryGetValue(currentUser.Username, out List<Conversation>? value) || value.Count == 0)
+            {
+                Console.WriteLine("No conversation history found.");
+                return;
+            }
+
+            var userConversations = ConversationList[currentUser.Username];
+            var selectedConvo = userConversations.FirstOrDefault(c => c.ConvoID == convoId);
+
+            if (selectedConvo == null)
+            {
+                Console.WriteLine("Conversation not found.");
+                return;
+            }
+
+            Console.WriteLine($"Messages for conversation: {selectedConvo.ConvoName}");
+            selectedConvo.DisplayMessages();
+        }
+
+        private void LoadConversationsForUser()
+        {
+            if (currentUser == null) return;
+
+            if (!ConversationList.TryGetValue(currentUser.Username, out var userConversations))
+            {
+                // Initialize an empty list for the user if there are no existing conversations
+                ConversationList[currentUser.Username] = new List<Conversation>();
+            }
+        }
+
+        private void SaveConversationsForUser()
+        {
+            if (currentUser != null)
+            {
+                dbService.SaveConversations(ConversationList); // Save all users' conversations to the file
+            }
         }
 
         public void RenameConvoInterface()
         {
-            if (ConversationList.Count == 0)
+            if (currentUser == null || !ConversationList.TryGetValue(currentUser.Username, out List<Conversation>? value) || value.Count == 0)
             {
                 Console.WriteLine("No conversations to rename.");
                 return;
             }
 
             Console.WriteLine("Available Conversations:");
-            foreach (var convo in ConversationList)
+            foreach (var convo in value)
             {
                 Console.WriteLine($"- {convo.ConvoName} (ID: {convo.ConvoID})");
             }
@@ -144,7 +297,10 @@ namespace AI_Medical_Chatbot
 
         public void RenameConvo(Guid convoId, string newName)
         {
-            var conversation = ConversationList.FirstOrDefault(c => c.ConvoID == convoId);
+            if (currentUser == null) return;
+
+            var userConversations = ConversationList[currentUser.Username];
+            var conversation = userConversations.FirstOrDefault(c => c.ConvoID == convoId);
 
             if (conversation == null)
             {
@@ -153,20 +309,20 @@ namespace AI_Medical_Chatbot
             }
 
             conversation.ConvoName = newName;
-            SaveConversations(); // Save after renaming
+            SaveConversationsForUser(); // Save after renaming
             Console.WriteLine($"Conversation renamed to: {newName}");
         }
 
         public void DeleteConvoInterface()
         {
-            if (ConversationList.Count == 0)
+            if (currentUser == null || !ConversationList.TryGetValue(currentUser.Username, out List<Conversation>? value) || value.Count == 0)
             {
                 Console.WriteLine("No conversations to delete.");
                 return;
             }
 
             Console.WriteLine("Available Conversations:");
-            foreach (var convo in ConversationList)
+            foreach (var convo in value)
             {
                 Console.WriteLine($"- {convo.ConvoName} (ID: {convo.ConvoID})");
             }
@@ -185,7 +341,10 @@ namespace AI_Medical_Chatbot
 
         public void DeleteConvo(Guid convoId)
         {
-            var conversation = ConversationList.FirstOrDefault(c => c.ConvoID == convoId);
+            if (currentUser == null) return;
+
+            var userConversations = ConversationList[currentUser.Username];
+            var conversation = userConversations.FirstOrDefault(c => c.ConvoID == convoId);
 
             if (conversation == null)
             {
@@ -193,34 +352,9 @@ namespace AI_Medical_Chatbot
                 return;
             }
 
-            ConversationList.Remove(conversation);
-            SaveConversations(); // Save after deletion
+            userConversations.Remove(conversation);
+            SaveConversationsForUser(); // Save after deletion
             Console.WriteLine($"{conversation.ConvoName} deleted.");
-        }
-
-        public void DisplayConvo()
-        {
-            if (ConversationList.Count == 0)
-            {
-                Console.WriteLine("No conversation history found.");
-                return;
-            }
-
-            foreach (var convo in ConversationList)
-            {
-                Console.WriteLine($"--- {convo.ConvoName} (ID: {convo.ConvoID}) ---");
-                convo.DisplayMessages();
-            }
-        }
-
-        public void SaveConversations()
-        {
-            dbService.SaveConversations(ConversationList);
-        }
-
-        private void LoadConversations()
-        {
-            ConversationList = dbService.LoadConversations() ?? new List<Conversation>();
         }
     }
 }

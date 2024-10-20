@@ -62,7 +62,7 @@ namespace AI_Medical_Chatbot
 
         private void Exit()
         {
-            Console.WriteLine("Goodbye!");
+            return;
         }
 
         private void Register()
@@ -83,6 +83,10 @@ namespace AI_Medical_Chatbot
             if (_currentUser == null)
             {
                 Console.WriteLine("Login failed. Invalid credentials.");
+            }
+            else
+            {
+                _chatComponent.SetCurrentUser(_currentUser);
             }
         }
 
@@ -138,15 +142,18 @@ namespace AI_Medical_Chatbot
                         StartNewConversation();
                         break;
                     case "2":
-                        _chatComponent.DisplayConvo();
+                        ShowMessageHistory();
                         break;
                     case "3":
-                        RenameConversation();
+                        ContinueConversation();
                         break;
                     case "4":
-                        DeleteConversation();
+                        RenameConversation();
                         break;
                     case "5":
+                        DeleteConversation();
+                        break;
+                    case "6":
                         loggedIn = false;
                         _currentUser = null;
                         Console.WriteLine("Logged out successfully.");
@@ -163,31 +170,93 @@ namespace AI_Medical_Chatbot
             Console.WriteLine("User Menu:");
             Console.WriteLine("1. Start a new conversation");
             Console.WriteLine("2. View conversation history");
-            Console.WriteLine("3. Rename a conversation");
-            Console.WriteLine("4. Delete a conversation");
-            Console.WriteLine("5. Logout");
+            Console.WriteLine("3. Continue a conversation");
+            Console.WriteLine("4. Rename a conversation");
+            Console.WriteLine("5. Delete a conversation");
+            Console.WriteLine("6. Logout");
         }
 
         private void StartNewConversation()
         {
             _chatComponent.CreateNewConvo();
+
+            Console.Write("Ask your question (or type 'exit' to end): ");
+
             while (true)
             {
-                string question = GetUserInput("Ask your question (or type 'exit' to end): ");
-                
+                string question = Console.ReadLine();
+
                 if (question.ToLower() == "exit")
                 {
                     Console.WriteLine("Ending conversation.");
                     break;
                 }
 
-                _chatComponent.AskChatbot(_currentUser, question);
-                _chatComponent.DisplayConvo();
+                _chatComponent.AskChatbot(question);
+            }
+        }
+
+        public void ContinueConversation()
+        {
+            Console.WriteLine("Continue a conversation:");
+            _chatComponent.DisplayConvoList();
+
+            string convoIdInput = GetUserInput("Enter the conversation ID to continue: ");
+            if (Guid.TryParse(convoIdInput, out Guid convoId))
+            {
+                bool selected = _chatComponent.ContinueConversation(convoId);
+                if (selected)
+                {
+                    Console.WriteLine("Continuing conversation: " + convoId);
+                    Console.WriteLine("Ask your question (or type 'exit' to end): ");
+                    while (true)
+                    {
+                        string question = Console.ReadLine();
+                        
+                        if (question.ToLower() == "exit")
+                        {
+                            Console.WriteLine("Ending conversation.");
+                            break;
+                        }
+
+                        _chatComponent.AskChatbot(question);
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Invalid conversation ID.");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Invalid conversation ID format.");
+            }
+        }
+
+        private void ShowMessageHistory()
+        {
+            _chatComponent.DisplayConvoList();
+
+            string convoIdInput = GetUserInput("Enter the conversation ID to view message history: ");
+            if (convoIdInput.ToLower() == "exit")
+            {
+                return;
+            }
+
+            if (Guid.TryParse(convoIdInput, out Guid convoId))
+            {
+                _chatComponent.DisplayConvoMessages(convoId);
+            }
+            else
+            {
+                Console.WriteLine("Invalid conversation ID format.");
             }
         }
 
         private void RenameConversation()
         {
+            _chatComponent.DisplayConvoList();
+
             string convoIdInput = GetUserInput("Enter the conversation ID to rename: ");
             if (Guid.TryParse(convoIdInput, out Guid convoId))
             {
@@ -202,6 +271,8 @@ namespace AI_Medical_Chatbot
 
         private void DeleteConversation()
         {
+            _chatComponent.DisplayConvoList();
+
             string convoIdInput = GetUserInput("Enter the conversation ID to delete: ");
             if (Guid.TryParse(convoIdInput, out Guid convoId))
             {

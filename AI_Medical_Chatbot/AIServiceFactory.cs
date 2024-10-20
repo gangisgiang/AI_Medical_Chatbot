@@ -14,20 +14,20 @@ namespace AI_Medical_Chatbot
             {
                 case "cardiovascular":
                     return new CardioAIService();
-                // case "dermatology":
-                //     return new DermatologyAIService();
-                // case "endocrine":
-                //     return new EndocrinologyAIService();
-                // case "immunology":
-                //     return new ImmunologyAIService();
-                // case "nephrology":
-                //     return new NephrologyAIService();
+                case "dermatology":
+                    return new DermatologyAIService();
+                case "endocrine":
+                    return new EndocrinologyAIService();
+                case "immunology":
+                    return new ImmunologyAIService();
+                case "nephrology":
+                    return new NephrologyAIService();
                 case "neurology":
                     return new NeuroAIService();
-                // case "oncology":
-                //     return new OncologyAIService();
-                // case "ophthalmology":
-                //     return new OphthalmologyAIService();
+                case "oncology":
+                    return new OncologyAIService();
+                case "ophthalmology":
+                    return new OphthalmologyAIService();
                 case "respiratory":
                     return new RespAIService();
                 case "rheumatology":

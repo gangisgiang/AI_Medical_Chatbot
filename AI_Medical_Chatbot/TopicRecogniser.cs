@@ -101,7 +101,6 @@ namespace AI_Medical_Chatbot
                 // Check if any token matches the keyword from the dictionary
                 if (tokens.Any(token => token.Contains(entry.Key)))
                 {
-                    Console.WriteLine($"Matched keyword: {entry.Key} -> Topic: {entry.Value}");
                     return (entry.Key, entry.Value);
                 }
             }
@@ -118,8 +117,6 @@ namespace AI_Medical_Chatbot
             {
                 return "Sorry, I don't have enough information on that. Can you try rephrasing your question?";
             }
-
-            Console.WriteLine("Processing input for topic: " + topic);
 
             IAIResponse aiService = AIServiceFactory.CreateAIService(topic);
 

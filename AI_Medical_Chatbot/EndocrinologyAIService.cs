@@ -13,8 +13,6 @@ namespace AI_Medical_Chatbot
             string cluster = ClusterTopic(message);
             string topic = "endocrinology";
 
-            Console.WriteLine("Cluster: " + cluster);
-
             if (string.IsNullOrEmpty(cluster))
             {
                 return await FetchandConvert("endocrinology");

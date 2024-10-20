@@ -9,7 +9,7 @@ namespace AI_Medical_Chatbot
     {
         private const string ConvoPath = "conversations.json";
 
-        public void SaveConversations(List<Conversation> conversations)
+        public void SaveConversations(Dictionary<string, List<Conversation>> conversations)
         {
             try
             {
@@ -22,15 +22,15 @@ namespace AI_Medical_Chatbot
             }
         }
 
-        public List<Conversation> LoadConversations()
+        public Dictionary<string, List<Conversation>> LoadConversations()
         {
             try
             {
-                if (!File.Exists(ConvoPath))
+                if (File.Exists(ConvoPath))
                 {
                     string json = File.ReadAllText(ConvoPath);
-                    var conversations = JsonSerializer.Deserialize<List<Conversation>>(json);
-                    return conversations ?? new List<Conversation>();
+                    var conversations = JsonSerializer.Deserialize<Dictionary<string, List<Conversation>>>(json) ?? new Dictionary<string, List<Conversation>>();
+                    return conversations;
                 }
                 else
                 {
@@ -42,7 +42,7 @@ namespace AI_Medical_Chatbot
                 Console.WriteLine("Error loading conversations: " + e.Message);
             }
 
-            return new List<Conversation>();
+            return new Dictionary<string, List<Conversation>>();
         }
     } 
 }

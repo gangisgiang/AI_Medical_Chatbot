@@ -22,7 +22,7 @@ namespace AI_Medical_Chatbot
 
         public void DisplayMessages()
         {
-            foreach (var message in Messages)
+            foreach (var message in Messages.ToList())
             {
                 message.Sender();
             }

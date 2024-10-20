@@ -13,13 +13,6 @@ namespace AI_Medical_Chatbot
             string cluster = ClusterTopic(message);
             string topic = "neurology";
 
-            // if (cluster.Contains(" "))
-            // {
-            //     cluster = cluster.Replace(" ", "-");
-            // }
-
-            Console.WriteLine("Cluster: " + cluster);
-
             if (string.IsNullOrEmpty(cluster))
             {
                 return await FetchandConvert("neurology");

@@ -18,8 +18,6 @@ namespace AI_Medical_Chatbot
             //     cluster = cluster.Replace(" ", "-");
             // }
 
-            Console.WriteLine("Cluster: " + cluster);
-
             if (string.IsNullOrEmpty(cluster))
             {
                 return await FetchandConvert("dermatology");
