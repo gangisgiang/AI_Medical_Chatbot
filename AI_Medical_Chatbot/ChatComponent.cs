@@ -14,7 +14,8 @@ namespace AI_Medical_Chatbot
         public Dictionary<string, List<Conversation>> ConversationList;
         private User currentUser;
         private readonly DatabaseConvoService dbService;
-        private Conversation currentConvo;
+        private Conversation currentConvo;        
+        private bool isGuestUser = false;
 
         private ChatComponent(DatabaseConvoService dbService)
         {
@@ -85,24 +86,39 @@ namespace AI_Medical_Chatbot
 
         public void AskChatbot(string text)
         {
-            if (currentUser == null || currentConvo == null)
+            if (isGuestUser)
             {
-                return;
-            } 
+                Task.Run(async () => await ProcessResponse(text));
+            }
+            else
+            {
+                // Standard user flow with saving conversation
+                if (currentUser == null || currentConvo == null)
+                {
+                    return;
+                }
 
-            Message message = new Message(text, currentUser.UserID, 0);
-            currentUser.MessagesHistory.Add(message);
-            currentConvo.AddMessage(message); // Add message to the active conversation
+                Message message = new Message(text, currentUser.UserID, 0);
+                currentUser.MessagesHistory.Add(message);
+                currentConvo.AddMessage(message); // Add message to the active conversation
+                SaveConversationsForUser(); // Save after adding the message
 
-            SaveConversationsForUser(); // Save after adding the message
-
-            // Process chatbot response asynchronously
-            Task.Run(async () => await ProcessResponse(text));
-
+                // Process chatbot response asynchronously
+                Task.Run(async () => await ProcessResponse(text));
+            }
         }
 
         private async Task ProcessResponse(string text)
         {
+            if (isGuestUser)
+            {
+                // Generate a response without saving to conversation history
+                string guestResponse = await topicRecogniser.GenerateResponse(text);
+                Console.WriteLine($"Chatbot: {guestResponse}");
+                Console.Write("Ask your question (or type 'exit' to end): ");
+                return;
+            }
+
             if (currentUser == null || currentConvo == null)
             {
                 return;
@@ -137,7 +153,6 @@ namespace AI_Medical_Chatbot
             Console.WriteLine($"Chatbot: {text}");
             Console.WriteLine("Ask your question (or type 'exit' to end): ");
         }
-
 
         public void CreateNewConvo()
         {
@@ -259,11 +274,16 @@ namespace AI_Medical_Chatbot
             }
         }
 
+        public void SetGuestMode(bool isGuest)
+        {
+            isGuestUser = isGuest;
+        }
+
         private void SaveConversationsForUser()
         {
-            if (currentUser != null)
+            if (!isGuestUser && currentUser != null)
             {
-                dbService.SaveConversations(ConversationList); // Save all users' conversations to the file
+                dbService.SaveConversations(ConversationList);
             }
         }
 

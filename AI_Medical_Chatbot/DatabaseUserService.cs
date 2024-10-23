@@ -8,6 +8,7 @@ namespace AI_Medical_Chatbot
 {
     public class DatabaseUserService
     {
+        private static DatabaseUserService? _instance;
         private const string UsersPath = "users.json";
         private List<User> Users = new List<User>();
         private EmailService _emailService;
@@ -17,6 +18,15 @@ namespace AI_Medical_Chatbot
         {
             _emailService = emailService;
             LoadUsers();
+        }
+
+        public static DatabaseUserService GetInstance(EmailService emailService)
+        {
+            if (_instance == null)
+            {
+                _instance = new DatabaseUserService(emailService);
+            }
+            return _instance;
         }
 
         public void RegisterUser(string username, string password, string email)
@@ -36,7 +46,6 @@ namespace AI_Medical_Chatbot
                 }
             }
 
-            // Create new user with Username, Password, and Email
             User newUser = new User(Users.Count + 1, username, password, email);
             Users.Add(newUser);
             SaveUsers();
@@ -56,7 +65,7 @@ namespace AI_Medical_Chatbot
             return null;
         }
 
-        public bool ResetPassword(string email, EmailService emailService)
+        public bool ResetPassword(string email)
         {
             // Find the user by email
             User user = Users.Find(u => u.Email == email);
@@ -80,21 +89,27 @@ namespace AI_Medical_Chatbot
             }
 
             // Send the reset code to the user's email
-            emailService.SendEmail(email, "Password Reset Code", "Your password reset code is: " + resetCode);
+            _emailService.SendEmail(email, "Password Reset Code", "Your password reset code is: " + resetCode);
             Console.WriteLine("A reset code has been sent to your email.");
             return true;
         }
 
-        public bool VerifyResetCode(string email, string enteredCode)
+        public string VerifyResetCode(string email, string enteredCode)
         {
             // Check if the entered code matches the stored code
             if (resetCodeMap.ContainsKey(email) && resetCodeMap[email] == enteredCode)
             {
-                resetCodeMap.Remove(email); // Remove code after it's used
-                return true;
+                // Find the user by email
+                User user = Users.Find(u => u.Email == email);
+                if (user != null)
+                {
+                    resetCodeMap.Remove(email); // Remove code after it's used
+                    return user.Username; // Return the username
+                }
             }
-            return false;
+            return null; // Return null if the code doesn't match or user is not found
         }
+
 
         private string GenerateResetCode()
         {

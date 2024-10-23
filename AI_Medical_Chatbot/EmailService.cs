@@ -34,7 +34,7 @@ namespace AI_Medical_Chatbot
                     From = new MailAddress(_senderEmail),
                     Subject = subject,
                     Body = body,
-                    IsBodyHtml = false, // Set to true if sending HTML emails
+                    IsBodyHtml = false,
                 };
 
                 mailMessage.To.Add(recipientEmail);

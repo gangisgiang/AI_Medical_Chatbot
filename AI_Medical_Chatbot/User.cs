@@ -11,6 +11,7 @@ namespace AI_Medical_Chatbot
 		public string Username { get; set; }
 		public string Password { get; set; }
 		public string Email { get; set; }
+		public bool IsAdmin { get; set; }
 		public List<Conversation> Conversations { get; set; } = new List<Conversation>();
 		public List<Message> MessagesHistory { get; set; } = new List<Message>();
 

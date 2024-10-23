@@ -22,7 +22,8 @@ namespace AI_Medical_Chatbot
 
             // Start the chatbot interface
             Console.WriteLine("Welcome to the AI Medical Chatbot System!");
-            chatbotInterface.Start();
+            MainMenu mainMenu = new MainMenu(chatbotInterface);
+            mainMenu.Show();
         }
     }
 }

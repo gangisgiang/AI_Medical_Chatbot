@@ -9,7 +9,6 @@ namespace AI_Medical_Chatbot
     {
         public async Task<string> GenerateResponse(string message)
         {
-            // Cluster the input and return cardio-related information
             string cluster = ClusterTopic(message);
             string topic = "immunology";
 
@@ -32,10 +31,8 @@ namespace AI_Medical_Chatbot
 
         public override string ClusterTopic(string input)
         {
-            // Convert input to lowercase to ensure case-insensitive matching
             input = input.ToLower();
 
-            // Define a manual mapping for keywords to topics based on the file content
             var manualMapping = new Dictionary<string, string>
             {
                 { "immune system", "immunology" }, 
@@ -59,7 +56,6 @@ namespace AI_Medical_Chatbot
                 { "B-cells", "immunology" }
             };
 
-            // Check if the input matches any keywords
             foreach (var keyword in manualMapping.Keys.OrderByDescending(k => k.Length))
             {
                 if (input.Contains(keyword))
@@ -68,7 +64,6 @@ namespace AI_Medical_Chatbot
                 }
             }
 
-            // If no match is found, return a default value
             return "immunology";
         }
     }

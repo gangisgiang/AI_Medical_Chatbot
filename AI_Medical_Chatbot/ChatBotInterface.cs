@@ -39,9 +39,12 @@ namespace AI_Medical_Chatbot
                         }
                         break;
                     case "3":
-                        ResetPassword();
+                        UseAsGuest();
                         break;
                     case "4":
+                        ResetPassword();
+                        break;
+                    case "5":
                         Exit();
                         return;
                     default:
@@ -56,8 +59,9 @@ namespace AI_Medical_Chatbot
             Console.WriteLine("Main Menu:");
             Console.WriteLine("1. Register");
             Console.WriteLine("2. Login");
-            Console.WriteLine("3. Reset Password");
-            Console.WriteLine("4. Exit");
+            Console.WriteLine("3. Use as Guest");
+            Console.WriteLine("4. Reset Password");
+            Console.WriteLine("5. Exit");
         }
 
         private void Exit()
@@ -90,13 +94,37 @@ namespace AI_Medical_Chatbot
             }
         }
 
+        private void UseAsGuest()
+        {
+            Console.WriteLine("You are now using the chatbot as a guest. Your conversations will not be saved.");
+            _chatComponent.SetGuestMode(true);
+            StartGuestConversation();
+            _chatComponent.SetGuestMode(false);
+        }
+
+        private void StartGuestConversation()
+        {
+            Console.Write("Ask your question (or type 'exit' to end): ");
+            while (true)
+            {
+                string question = Console.ReadLine();
+                if (question.ToLower() == "exit")
+                {
+                    Console.WriteLine("Ending guest session.");
+                    break;
+                }
+                // Let the ChatComponent handle the chatbot response for the guest
+                _chatComponent.AskChatbot(question);
+            }
+        }
+
         // Password Reset Function
         private void ResetPassword()
         {
             string email = GetUserInput("Enter your email to reset your password: ");
             
             // Send reset code to email
-            bool emailFound = _userService.ResetPassword(email, _emailService);
+            bool emailFound = _userService.ResetPassword(email);
 
             // If the email is not found, return
             if (!emailFound)
@@ -108,18 +136,16 @@ namespace AI_Medical_Chatbot
             // Ask the user to enter the reset code
             string enteredCode = GetUserInput("Enter the reset code sent to your email: ");
 
-            // Verify the reset code
-            if (_userService.VerifyResetCode(email, enteredCode))
+            // Verify the reset code and get the username
+            string username = _userService.VerifyResetCode(email, enteredCode);
+            if (!string.IsNullOrEmpty(username))
             {
-                Console.WriteLine("Reset code verified.");
+                Console.WriteLine($"Reset code verified. The username associated with this email is: {username}");
 
                 // Allow the user to set a new password
                 string newPassword = GetUserInput("Enter your new password: ");
-
-                // Update password in the database
                 _userService.SetNewPassword(email, newPassword);
 
-                // Log in with the new password
                 Console.WriteLine("Your password has been reset. You can now log in with your new password.");
             }
             else
