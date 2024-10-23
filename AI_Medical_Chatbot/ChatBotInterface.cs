@@ -35,6 +35,7 @@ namespace AI_Medical_Chatbot
                         Login();
                         if (_currentUser != null)
                         {
+                            Console.WriteLine("Login successful.");
                             ShowUserMenu();
                         }
                         break;
@@ -113,36 +114,29 @@ namespace AI_Medical_Chatbot
                     Console.WriteLine("Ending guest session.");
                     break;
                 }
-                // Let the ChatComponent handle the chatbot response for the guest
                 _chatComponent.AskChatbot(question);
             }
         }
 
-        // Password Reset Function
         private void ResetPassword()
         {
             string email = GetUserInput("Enter your email to reset your password: ");
             
-            // Send reset code to email
             bool emailFound = _userService.ResetPassword(email);
 
-            // If the email is not found, return
             if (!emailFound)
             {
                 Console.WriteLine("Email not found. Please try again.");
                 return;
             }
 
-            // Ask the user to enter the reset code
             string enteredCode = GetUserInput("Enter the reset code sent to your email: ");
 
-            // Verify the reset code and get the username
             string username = _userService.VerifyResetCode(email, enteredCode);
             if (!string.IsNullOrEmpty(username))
             {
                 Console.WriteLine($"Reset code verified. The username associated with this email is: {username}");
 
-                // Allow the user to set a new password
                 string newPassword = GetUserInput("Enter your new password: ");
                 _userService.SetNewPassword(email, newPassword);
 
@@ -204,7 +198,8 @@ namespace AI_Medical_Chatbot
 
         private void StartNewConversation()
         {
-            _chatComponent.CreateNewConvo();
+            // Execute the command to create a new conversation
+            ExecuteCommand(new ConvoCmd(_chatComponent, ConvoAction.Create));
 
             Console.Write("Ask your question (or type 'exit' to end): ");
 
@@ -222,36 +217,14 @@ namespace AI_Medical_Chatbot
             }
         }
 
-        public void ContinueConversation()
+        private void ContinueConversation()
         {
-            Console.WriteLine("Continue a conversation:");
             _chatComponent.DisplayConvoList();
 
             string convoIdInput = GetUserInput("Enter the conversation ID to continue: ");
             if (Guid.TryParse(convoIdInput, out Guid convoId))
             {
-                bool selected = _chatComponent.ContinueConversation(convoId);
-                if (selected)
-                {
-                    Console.WriteLine("Continuing conversation: " + convoId);
-                    Console.WriteLine("Ask your question (or type 'exit' to end): ");
-                    while (true)
-                    {
-                        string question = Console.ReadLine();
-                        
-                        if (question.ToLower() == "exit")
-                        {
-                            Console.WriteLine("Ending conversation.");
-                            break;
-                        }
-
-                        _chatComponent.AskChatbot(question);
-                    }
-                }
-                else
-                {
-                    Console.WriteLine("Invalid conversation ID.");
-                }
+                ExecuteCommand(new ConvoCmd(_chatComponent, ConvoAction.Continue, convoId));
             }
             else
             {
@@ -287,7 +260,7 @@ namespace AI_Medical_Chatbot
             if (Guid.TryParse(convoIdInput, out Guid convoId))
             {
                 string newName = GetUserInput("Enter the new name for the conversation: ");
-                ExecuteCommand(new RenameConvoCmd(_chatComponent, convoId, newName));
+                ExecuteCommand(new ConvoCmd(_chatComponent, ConvoAction.Rename, convoId, newName));
             }
             else
             {
@@ -302,7 +275,7 @@ namespace AI_Medical_Chatbot
             string convoIdInput = GetUserInput("Enter the conversation ID to delete: ");
             if (Guid.TryParse(convoIdInput, out Guid convoId))
             {
-                ExecuteCommand(new DeleteConvoCmd(_chatComponent, convoId));
+                ExecuteCommand(new ConvoCmd(_chatComponent, ConvoAction.Delete, convoId));
             }
             else
             {

@@ -92,18 +92,18 @@ namespace AI_Medical_Chatbot
             }
             else
             {
-                // Standard user flow with saving conversation
                 if (currentUser == null || currentConvo == null)
                 {
                     return;
                 }
 
-                Message message = new Message(text, currentUser.UserID, 0);
-                currentUser.MessagesHistory.Add(message);
-                currentConvo.AddMessage(message); // Add message to the active conversation
-                SaveConversationsForUser(); // Save after adding the message
+                // Add the user message to the current conversation
+                Message userMessage = new Message(text, currentUser.UserID, 0);
+                currentUser.MessagesHistory.Add(userMessage);
+                currentConvo.AddMessage(userMessage);
+                SaveConversationsForUser();
 
-                // Process chatbot response asynchronously
+                // Generate and process chatbot's response
                 Task.Run(async () => await ProcessResponse(text));
             }
         }
@@ -161,7 +161,7 @@ namespace AI_Medical_Chatbot
                 return;
             }
 
-            string convoName = $"Conversation ({Guid.NewGuid()})"; // Unique ID
+            string convoName = $"Conversation ({Guid.NewGuid()})"; // Generate a unique default name
             Conversation convo = new Conversation(Guid.NewGuid(), convoName);
 
             if (!ConversationList.ContainsKey(currentUser.Username))
@@ -182,22 +182,24 @@ namespace AI_Medical_Chatbot
                 Console.WriteLine("No conversations to continue.");
                 return;
             }
-
-            Console.WriteLine("Available Conversations:");
-            foreach (var convo in value)
-            {
-                Console.WriteLine($"- {convo.ConvoName} (ID: {convo.ConvoID})");
-            }
-
-            Console.Write("Enter the ID of the conversation you want to continue: ");
-            string convoIdInput = Console.ReadLine();
-            if (Guid.TryParse(convoIdInput, out Guid convoId))
-            {
-                ContinueConversation(convoId);
-            }
             else
             {
-                Console.WriteLine("Invalid ID format.");
+                Console.WriteLine("Available Conversations:");
+                foreach (var convo in value)
+                {
+                    Console.WriteLine($"- {convo.ConvoName} (ID: {convo.ConvoID})");
+
+                    Console.Write("Enter the ID of the conversation you want to continue: ");
+                    string convoIdInput = Console.ReadLine();
+                    if (Guid.TryParse(convoIdInput, out Guid convoId))
+                    {
+                        ContinueConversation(convoId);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Invalid ID format.");
+                    }
+                }
             }
         }
 
@@ -210,7 +212,6 @@ namespace AI_Medical_Chatbot
             }
 
             var userConversations = ConversationList[currentUser.Username];
-
             var selectedConvo = userConversations.FirstOrDefault(c => c.ConvoID.Equals(convoId));
 
             if (selectedConvo == null)
@@ -221,9 +222,23 @@ namespace AI_Medical_Chatbot
 
             currentConvo = selectedConvo;
             Console.WriteLine($"Continuing conversation: {selectedConvo.ConvoName}");
+            currentConvo.DisplayMessages(); // Display existing messages
+            Console.WriteLine("Ask your question (or type 'exit' to end): ");
 
-            // Display only the messages from the selected conversation
-            currentConvo.DisplayMessages(); 
+            // Allow user to keep chatting within this conversation
+            while (true)
+            {
+                string question = Console.ReadLine();
+
+                if (question.ToLower() == "exit")
+                {
+                    Console.WriteLine("Ending conversation.");
+                    break;
+                }
+
+                AskChatbot(question); // Process the new message and save it
+            }
+
             return true;
         }
 
@@ -329,7 +344,7 @@ namespace AI_Medical_Chatbot
             }
 
             conversation.ConvoName = newName;
-            SaveConversationsForUser(); // Save after renaming
+            SaveConversationsForUser();
             Console.WriteLine($"Conversation renamed to: {newName}");
         }
 

@@ -114,12 +114,11 @@ namespace AI_Medical_Chatbot
         private string GenerateResetCode()
         {
             Random random = new Random();
-            return random.Next(210705, 999999).ToString(); // Generates a 6-digit reset code.
+            return random.Next(210705, 999999).ToString();
         }
 
         public void SetNewPassword(string email, string newPassword)
         {
-            // Find the user and update their password
             User user = Users.Find(u => u.Email == email);
             if (user != null)
             {
