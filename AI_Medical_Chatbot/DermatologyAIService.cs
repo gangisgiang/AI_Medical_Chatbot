@@ -47,8 +47,8 @@ namespace AI_Medical_Chatbot
                 { "blackheads", "acne" },
                 { "pimples", "acne" },
                 { "itchy inflamed skin", "eczema" },
-                { "dry inflamed skin", "eczema" },
-                { "chronic itchy skin", "eczema" },
+                { "dry inflamed", "eczema" },
+                { "chronic itchy", "eczema" },
                 { "thick scaly patches", "psoriasis" },
                 { "autoimmune skin disorder", "psoriasis" },
                 { "malignant melanoma", "melanoma" },
@@ -62,16 +62,17 @@ namespace AI_Medical_Chatbot
                 { "chronic hair thinning", "hair-loss" },
                 { "severe skin allergies", "skin-allergies" },
                 { "contact dermatitis from metal", "skin-allergies" },
-                { "red swollen allergic reaction", "skin-allergies" },
-                { "allergic reaction to fragrances", "skin-allergies" },
-                { "poison ivy rash", "skin-allergies" },
+                { "swollen", "skin-allergies" },
+                { "fragrances", "skin-allergies" },
+                { "rash", "skin-allergies" },
+                { "ivy", "skin-allergies"},
                 { "atopic dermatitis", "eczema" },
                 { "chronic scaly patches", "psoriasis" },
-                { "melanin production disorder", "melanoma" },
-                { "general skin disorders", "dermatology" },
-                { "nail disorders", "dermatology" },
-                { "skin disorders", "dermatology" },
-                { "hair disorders", "dermatology" },
+                { "melanin", "melanoma" },
+                { "skin disorders", "skin disorders" },
+                { "nail disorders", "nail disorders" },
+                { "skin disorders", "skin disorders" },
+                { "hair disorders", "hair" },
                 { "scalp disorders", "hair-loss" },
                 { "psoriasis", "psoriasis" },
                 { "eczema", "eczema" },
@@ -82,6 +83,7 @@ namespace AI_Medical_Chatbot
                 { "skin allergies", "skin-allergies" },
             };
 
+            manualMapping = manualMapping.ToDictionary(kvp => kvp.Key.ToLower(), kvp => kvp.Value);
 
             // Check if the input matches any keywords
             foreach (var keyword in manualMapping.Keys.OrderByDescending(k => k.Length))
@@ -94,6 +96,28 @@ namespace AI_Medical_Chatbot
 
             // If no match is found, return an empty string or a default topic
             return "dermatology";
+        }
+
+        public override string ExtractRelevantInfo(string plainTextData, string topic)
+        {
+            string[] paragraphs = plainTextData.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+
+            var relevantParagraphs = paragraphs.Where(p => p.Contains(topic, StringComparison.OrdinalIgnoreCase)
+                || p.Contains(topic, StringComparison.OrdinalIgnoreCase)).ToArray();
+
+            if (relevantParagraphs.Length == 0)
+            {
+                return "No relevant information.";
+            }
+
+            string? firstParagraph = relevantParagraphs.FirstOrDefault(p => p.Split('.').Length > 1)?.Trim();
+
+            if (string.IsNullOrEmpty(firstParagraph))
+            {
+                return "No relevant information found.";
+            }
+
+            return firstParagraph;
         }
     }
 }

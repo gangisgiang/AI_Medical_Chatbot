@@ -18,6 +18,10 @@ namespace AI_Medical_Chatbot
                 return await FetchandConvert("neurology");
             }
 
+
+            string cluste = ClusterTopic(message);
+            Console.WriteLine("Cluster: " + cluste);
+
             string plainTextData = await FetchandConvert(topic);
 
             string relevantInfo = ExtractRelevantInfo(plainTextData, cluster);
@@ -40,7 +44,7 @@ namespace AI_Medical_Chatbot
             {
                 { "sensitivity to light", "migraine" },
                 { "memory loss", "alzheimers disease" },
-                { "movement disorders", "parkinsons disease" },
+                { "movement disorders", "parkinsons" },
                 { "spinal cord injury", "spinal cord injury" },
                 { "autoimmune", "multiple sclerosis" },
                 { "dopamine", "parkinsons disease" },
@@ -48,23 +52,24 @@ namespace AI_Medical_Chatbot
                 { "headaches", "neurology" },
                 { "vision problems", "brain tumor" },
                 { "brain tumor", "brain tumor" },
-                { "Alzheimer", "alzheimers disease" },
-                { "Parkinson", "parkinsons disease" },
+                { "alzheimer", "alzheimer" },
+                { "parkinson", "parkinson" },
                 { "ALS", "neurodegenerative diseases" },
                 { "Huntington", "neurodegenerative diseases" },
-                { "Multiple Sclerosis", "multiple sclerosis" },
+                { "Multiple", "multiple sclerosis" },
+                { "Sclerosis", "multiple sclerosis"},
                 { "epilepsy", "epilepsy" },
                 { "neurology", "neurology" },
-                { "migraines", "migraine" },
                 { "migraine", "migraine" },
                 { "tumor", "brain tumor" },
                 { "cancer", "brain tumor" },
                 { "paralysis", "spinal cord injury" },
                 { "MS", "multiple sclerosis" },
-                { "dementia", "alzheimers disease" },
-                { "stroke", "neurology" }
+                { "dementia", "dementia" },
+                { "stroke", "stroke" }
             };
-
+            // make the word in the dictonary to be in lower case
+            manualMapping = manualMapping.ToDictionary(kvp => kvp.Key.ToLower(), kvp => kvp.Value);
 
             // Check if the input matches any keywords
             foreach (var keyword in manualMapping.Keys.OrderByDescending(k => k.Length))
@@ -77,6 +82,28 @@ namespace AI_Medical_Chatbot
 
             // If no match is found, return an empty string or a default topic
             return "neurology";
+        }
+
+        public override string ExtractRelevantInfo(string plainTextData, string topic)
+        {
+            string[] paragraphs = plainTextData.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+
+            var relevantParagraphs = paragraphs.Where(p => p.Contains(topic, StringComparison.OrdinalIgnoreCase)
+                || p.Contains(topic, StringComparison.OrdinalIgnoreCase)).ToArray();
+
+            if (relevantParagraphs.Length == 0)
+            {
+                return "No relevant information.";
+            }
+
+            string? firstParagraph = relevantParagraphs.FirstOrDefault(p => p.Split('.').Length > 1)?.Trim();
+
+            if (string.IsNullOrEmpty(firstParagraph))
+            {
+                return "No relevant information found.";
+            }
+
+            return firstParagraph;
         }
     }
 }

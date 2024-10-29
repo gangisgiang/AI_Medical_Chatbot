@@ -10,7 +10,7 @@ namespace AI_Medical_Chatbot
         private readonly DatabaseUserService _userService;
         private readonly ChatComponent _chatComponent;
         private readonly EmailService _emailService;
-        private User _currentUser;
+        private User? _currentUser;
 
         public ChatbotInterface(DatabaseUserService userService, ChatComponent chatComponent, EmailService emailService)
         {
@@ -135,7 +135,7 @@ namespace AI_Medical_Chatbot
             string username = _userService.VerifyResetCode(email, enteredCode);
             if (!string.IsNullOrEmpty(username))
             {
-                Console.WriteLine($"Reset code verified. The username associated with this email is: {username}");
+                Console.WriteLine("Reset code verified. The username associated with this email is: " + username);
 
                 string newPassword = GetUserInput("Enter your new password: ");
                 _userService.SetNewPassword(email, newPassword);

@@ -9,7 +9,6 @@ namespace AI_Medical_Chatbot
     public class Admin
     {
         private static Admin? _instance;
-        private static readonly object _lock = new object();
         private List<User> _users = new List<User>();
         private const string UsersFilePath = "users.json";
 
@@ -22,13 +21,7 @@ namespace AI_Medical_Chatbot
         {
             if (_instance == null)
             {
-                lock (_lock)
-                {
-                    if (_instance == null)
-                    {
-                        _instance = new Admin();
-                    }
-                }
+                _instance = new Admin();
             }
             return _instance;
         }
@@ -44,7 +37,7 @@ namespace AI_Medical_Chatbot
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Failed to load users from file: {ex.Message}");
+                    Console.WriteLine("Failed to load users from file: " + ex.Message);
                 }
             }
             else
@@ -55,19 +48,19 @@ namespace AI_Medical_Chatbot
 
         public void ViewAllUsers()
         {
-            Console.WriteLine("Registered Users:");
+            Console.WriteLine("Registered Users:"   );
             foreach (User user in _users)
             {
-                Console.WriteLine($"Username: {user.Username}, Email: {user.Email}");
+                Console.WriteLine("UserId: " + user.UserID + "Username: " + user.Username + ", Email: " + user.Email);
             }
         }
 
         public void DeleteUser(string username)
         {
-            User userToDelete = _users.FirstOrDefault(u => u.Username == username);
-            if (userToDelete != null)
+            User deletedUser = _users.FirstOrDefault(u => u.Username == username);
+            if (deletedUser != null)
             {
-                _users.Remove(userToDelete);
+                _users.Remove(deletedUser);
                 Console.WriteLine("User deleted successfully.");
             }
             else

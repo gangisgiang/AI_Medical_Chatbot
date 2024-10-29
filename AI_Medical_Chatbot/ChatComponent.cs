@@ -20,7 +20,7 @@ namespace AI_Medical_Chatbot
         private ChatComponent(DatabaseConvoService dbService)
         {
             this.dbService = dbService;
-            ConversationList = dbService.LoadConversations(); // Load all conversations for all users
+            ConversationList = dbService.LoadConversations();
         }
 
         public static ChatComponent GetInstance(DatabaseConvoService dbService)
@@ -114,7 +114,7 @@ namespace AI_Medical_Chatbot
             {
                 // Generate a response without saving to conversation history
                 string guestResponse = await topicRecogniser.GenerateResponse(text);
-                Console.WriteLine($"Chatbot: {guestResponse}");
+                Console.WriteLine("Chatbot: " + guestResponse);
                 Console.Write("Ask your question (or type 'exit' to end): ");
                 return;
             }
@@ -132,7 +132,7 @@ namespace AI_Medical_Chatbot
         {
             if (currentConvo != null)
             {
-                Console.WriteLine($"Conversation: {currentConvo.ConvoName}");
+                Console.WriteLine("Conversation: " + currentConvo.ConvoName);
                 currentConvo.DisplayMessages();
             }
         }
@@ -150,7 +150,7 @@ namespace AI_Medical_Chatbot
             SaveConversationsForUser();
 
             // Display the chatbot's response message only
-            Console.WriteLine($"Chatbot: {text}");
+            Console.WriteLine("Chatbot: " + text);
             Console.WriteLine("Ask your question (or type 'exit' to end): ");
         }
 
@@ -161,7 +161,7 @@ namespace AI_Medical_Chatbot
                 return;
             }
 
-            string convoName = $"Conversation ({Guid.NewGuid()})"; // Generate a unique default name
+            string convoName = "Conversation " + "(" + Guid.NewGuid() + ")"; // Generate a unique default name
             Conversation convo = new Conversation(Guid.NewGuid(), convoName);
 
             if (!ConversationList.ContainsKey(currentUser.Username))
@@ -172,7 +172,7 @@ namespace AI_Medical_Chatbot
             ConversationList[currentUser.Username].Add(convo);
             currentConvo = convo;
             SaveConversationsForUser(); // Save after creating the new conversation
-            Console.WriteLine($"{convoName} created.");
+            Console.WriteLine("New conversation created: " + convoName);
         }
 
         public void ContinueConversationInterface()
@@ -187,7 +187,7 @@ namespace AI_Medical_Chatbot
                 Console.WriteLine("Available Conversations:");
                 foreach (var convo in value)
                 {
-                    Console.WriteLine($"- {convo.ConvoName} (ID: {convo.ConvoID})");
+                    Console.WriteLine("- " + convo.ConvoName + " (ID: " + convo.ConvoID + ")");
 
                     Console.Write("Enter the ID of the conversation you want to continue: ");
                     string convoIdInput = Console.ReadLine();
@@ -216,12 +216,12 @@ namespace AI_Medical_Chatbot
 
             if (selectedConvo == null)
             {
-                Console.WriteLine($"No conversation selected. Debug: Could not find conversation with ID: {convoId}");
+                Console.WriteLine("No conversation selected.");
                 return false;
             }
 
             currentConvo = selectedConvo;
-            Console.WriteLine($"Continuing conversation: {selectedConvo.ConvoName}");
+            Console.WriteLine("Continuing conversation: " + currentConvo.ConvoName);
             currentConvo.DisplayMessages(); // Display existing messages
             Console.WriteLine("Ask your question (or type 'exit' to end): ");
 
@@ -253,7 +253,7 @@ namespace AI_Medical_Chatbot
             Console.WriteLine("Conversations available:");
             foreach (var convo in value)
             {
-                Console.WriteLine($"--- {convo.ConvoName} (ID: {convo.ConvoID}) ---");
+                Console.WriteLine("- " + convo.ConvoName + " (ID: " + convo.ConvoID + ")");
             }
         }
 
@@ -274,7 +274,7 @@ namespace AI_Medical_Chatbot
                 return;
             }
 
-            Console.WriteLine($"Messages for conversation: {selectedConvo.ConvoName}");
+            Console.WriteLine("Messages for conversation: " + selectedConvo.ConvoName);
             selectedConvo.DisplayMessages();
         }
 
@@ -284,7 +284,6 @@ namespace AI_Medical_Chatbot
 
             if (!ConversationList.TryGetValue(currentUser.Username, out var userConversations))
             {
-                // Initialize an empty list for the user if there are no existing conversations
                 ConversationList[currentUser.Username] = new List<Conversation>();
             }
         }
@@ -313,7 +312,7 @@ namespace AI_Medical_Chatbot
             Console.WriteLine("Available Conversations:");
             foreach (var convo in value)
             {
-                Console.WriteLine($"- {convo.ConvoName} (ID: {convo.ConvoID})");
+                Console.WriteLine("- " + convo.ConvoName + " (ID: " + convo.ConvoID + ")");
             }
 
             Console.Write("Enter the ID of the conversation you want to rename: ");
@@ -339,13 +338,13 @@ namespace AI_Medical_Chatbot
 
             if (conversation == null)
             {
-                Console.WriteLine($"Conversation with ID '{convoId}' not found.");
+                Console.WriteLine("Conversation not found.");
                 return;
             }
 
             conversation.ConvoName = newName;
             SaveConversationsForUser();
-            Console.WriteLine($"Conversation renamed to: {newName}");
+            Console.WriteLine("Conversation renamed to: " + newName);
         }
 
         public void DeleteConvoInterface()
@@ -359,7 +358,7 @@ namespace AI_Medical_Chatbot
             Console.WriteLine("Available Conversations:");
             foreach (var convo in value)
             {
-                Console.WriteLine($"- {convo.ConvoName} (ID: {convo.ConvoID})");
+                Console.WriteLine("- " + convo.ConvoName + " (ID: " + convo.ConvoID + ")");
             }
 
             Console.Write("Enter the ID of the conversation you want to delete: ");
@@ -383,13 +382,13 @@ namespace AI_Medical_Chatbot
 
             if (conversation == null)
             {
-                Console.WriteLine($"Conversation with ID '{convoId}' not found.");
+                Console.WriteLine("Conversation not found.");
                 return;
             }
 
             userConversations.Remove(conversation);
-            SaveConversationsForUser(); // Save after deletion
-            Console.WriteLine($"{conversation.ConvoName} deleted.");
+            SaveConversationsForUser();
+            Console.WriteLine("Conversation deleted.");
         }
     }
 }

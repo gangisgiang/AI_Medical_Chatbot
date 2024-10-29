@@ -8,7 +8,7 @@ namespace AI_Medical_Chatbot
 
         public AdminInterface()
         {
-            _admin = Admin.GetInstance(); // Get the singleton instance
+            _admin = Admin.GetInstance();
         }
 
         public void ShowMenu()
@@ -32,8 +32,8 @@ namespace AI_Medical_Chatbot
                     _admin.ViewAllUsers();
                     break;
                 case "2":
-                    string usernameToDelete = GetUserInput("Enter the username of the user to delete: ");
-                    _admin.DeleteUser(usernameToDelete);
+                    string deleteUsername = GetUserInput("Enter the username of the user to delete: ");
+                    _admin.DeleteUser(deleteUsername);
                     break;
                 case "3":
                     string username = GetUserInput("Enter new username: ");
@@ -49,7 +49,7 @@ namespace AI_Medical_Chatbot
                     break;
             }
 
-            ShowMenu(); // Show the menu again after an action
+            ShowMenu();
         }
 
         private string GetUserInput(string prompt)

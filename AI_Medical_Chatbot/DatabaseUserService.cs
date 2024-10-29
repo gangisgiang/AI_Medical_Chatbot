@@ -52,7 +52,7 @@ namespace AI_Medical_Chatbot
             Console.WriteLine("User registered successfully.");
         }
 
-        public User LoginUser(string username, string password)
+        public User? LoginUser(string username, string password)
         {
             foreach (User user in Users)
             {
@@ -94,7 +94,7 @@ namespace AI_Medical_Chatbot
             return true;
         }
 
-        public string VerifyResetCode(string email, string enteredCode)
+        public string? VerifyResetCode(string email, string enteredCode)
         {
             // Check if the entered code matches the stored code
             if (resetCodeMap.ContainsKey(email) && resetCodeMap[email] == enteredCode)

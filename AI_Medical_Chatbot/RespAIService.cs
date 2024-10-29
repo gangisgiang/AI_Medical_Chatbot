@@ -66,14 +66,16 @@ namespace AI_Medical_Chatbot
                 { "tuberculosis", "tuberculosis" },
                 { "cough", "bronchitis" },
                 { "chest", "bronchitis" },
-                { "respiratory distress syndrome", "respiratory distress syndrome" },
-                { "respiratory failure", "respiratory failure" },
+                { "distress syndrome", "distress syndrome" },
+                { "failure", "respiratory failure" },
                 { "lung", "lung diseases" },
                 { "breathing", "respiratory failure" },
                 { "breath", "respiratory failure" },
                 { "breathe", "respiratory failure" },
                 { "respiratory", "respiratory failure" }
             };
+
+            manualMapping = manualMapping.ToDictionary(kvp => kvp.Key.ToLower(), kvp => kvp.Value);
 
             // Check if the input matches any keywords
             foreach (var keyword in manualMapping.Keys.OrderByDescending(k => k.Length))
@@ -86,6 +88,28 @@ namespace AI_Medical_Chatbot
 
             // If no match is found, return a default value
             return "respiratory";
+        }
+
+        public override string ExtractRelevantInfo(string plainTextData, string topic)
+        {
+            string[] paragraphs = plainTextData.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+
+            var relevantParagraphs = paragraphs.Where(p => p.Contains(topic, StringComparison.OrdinalIgnoreCase)
+                || p.Contains(topic, StringComparison.OrdinalIgnoreCase)).ToArray();
+
+            if (relevantParagraphs.Length == 0)
+            {
+                return "No relevant information.";
+            }
+
+            string? firstParagraph = relevantParagraphs.FirstOrDefault(p => p.Split('.').Length > 1)?.Trim();
+
+            if (string.IsNullOrEmpty(firstParagraph))
+            {
+                return "No relevant information found.";
+            }
+
+            return firstParagraph;
         }
     }
 }

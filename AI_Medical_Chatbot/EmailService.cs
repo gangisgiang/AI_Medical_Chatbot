@@ -40,9 +40,9 @@ namespace AI_Medical_Chatbot
                 mailMessage.To.Add(recipientEmail);
                 smtpClient.Send(mailMessage);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                Console.WriteLine("Failed to send email. Error: " + ex.Message);
+                Console.WriteLine("Failed to send email.");
             }
         }
     }

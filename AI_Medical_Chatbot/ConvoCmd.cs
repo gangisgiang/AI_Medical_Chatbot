@@ -12,7 +12,7 @@ namespace AI_Medical_Chatbot
         private readonly Guid _conversationId;
         private readonly string _newName;
 
-        public ConvoCmd(ChatComponent chatComponent, ConvoAction action, Guid conversationId = default, string newName = null)
+        public ConvoCmd(ChatComponent chatComponent, ConvoAction action, Guid conversationId = default, string? newName = null)
         {
             _chatComponent = chatComponent;
             _action = action;

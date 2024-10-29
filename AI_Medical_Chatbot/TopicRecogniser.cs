@@ -2,89 +2,31 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Text.Json;
 using System.Text.RegularExpressions;
+using System.Net.Http.Json;
 
 namespace AI_Medical_Chatbot
 {
     public class TopicRecogniser : IAIResponse
     {
-        public readonly Dictionary<string, string> topicMap = new Dictionary<string, string>()
+        public readonly Dictionary<string, string> topicMap;
+        public TopicRecogniser()
         {
-            // Cardiovascular Keywords
-            {"cardio", "cardiovascular"}, {"heart", "cardiovascular"}, {"hypertension", "cardiovascular"}, {"blood pressure", "cardiovascular"}, 
-            {"stroke", "cardiovascular"}, {"cardiovascular", "cardiovascular"}, {"valve", "cardiovascular"}, 
-            {"cardiology", "cardiovascular"}, {"vascular", "cardiovascular"}, {"cardiac", "cardiovascular"}, {"cholesterol", "cardiovascular"},
-            {"atherosclerosis", "cardiovascular"}, {"myocardial infarction", "cardiovascular"}, {"arrhythmia", "cardiovascular"}, {"endocarditis", "cardiovascular"}, 
-            {"coronary", "cardiovascular"}, {"CAD", "cardiovascular"}, {"plaque", "cardiovascular"}, {"circulation", "cardiovascular"},
-            
-            // Respiratory Keywords
-            {"respiratory", "respiratory"}, {"lung", "respiratory"}, {"asthma", "respiratory"}, {"bronchitis", "respiratory"}, 
-            {"chronic obstructive pulmonary", "respiratory"}, {"emphysema", "respiratory"}, {"pneumonia", "respiratory"}, 
-            {"tuberculosis", "respiratory"}, {"covid", "respiratory"}, {"coronavirus", "respiratory"}, {"covid-19", "respiratory"}, 
-            {"sars-cov-2", "respiratory"}, {"sars", "respiratory"}, {"mers", "respiratory"}, {"influenza", "respiratory"}, {"flu", "respiratory"}, 
-            {"cold", "respiratory"}, {"pulmonary", "respiratory"}, {"pulmonology", "respiratory"}, {"alveoli", "respiratory"},
-            {"breathe", "respiratory"}, {"breathing", "respiratory"}, {"respiration", "respiratory"}, {"ventilation", "respiratory"}, 
-            {"airways", "respiratory"}, {"bronchi", "respiratory"},
+            topicMap = LoadTopicMapFromFile("topicMap.json");
+        }
 
-            // Neurology Keywords
-            {"neurology", "neurology"}, {"brain", "neurology"}, {"nerves", "neurology"}, {"spinal", "neurology"}, {"epilepsy", "neurology"}, 
-            {"seizures", "neurology"}, {"alzheimer", "neurology"}, {"parkinson", "neurology"}, {"multiple sclerosis", "neurology"}, {"memory", "neurology"},
-            {"ms", "neurology"}, {"migraine", "neurology"}, {"headache", "neurology"}, {"neurodegenerative", "neurology"}, {"cord", "neurology" },
-            {"neuron", "neurology"}, {"tumor", "neurology"}, {"cognitive", "neurology"}, {"dopamine", "neurology"}, {"motor", "neurology"}, {"nervous", "neurology"},
-            
-            // Dermatology Keywords
-            {"clogged pores", "dermatology"}, {"blackheads", "dermatology"}, {"pimples", "dermatology"}, {"itchy inflamed skin", "dermatology"}, 
-            {"dry inflamed skin", "dermatology"}, {"chronic itchy skin", "dermatology"}, {"thick scaly patches", "dermatology"}, 
-            {"skin disorder", "dermatology"}, {"malignant melanoma", "dermatology"}, {"skin cancer", "dermatology"}, {"dermatology", "dermatology"},
-            {"abnormal mole growth", "dermatology"}, {"red visible blood vessels", "dermatology"}, {"persistent facial redness", "dermatology"}, 
-            {"pus-filled bumps on face", "dermatology"}, {"hair loss", "dermatology"}, {"alopecia areata", "dermatology"}, 
-            {"chronic hair thinning", "dermatology"}, {"severe skin allergies", "dermatology"}, {"contact dermatitis from metal", "dermatology"}, 
-            {"red swollen allergic reaction", "dermatology"}, {"allergic reaction to fragrances", "dermatology"}, {"poison ivy rash", "dermatology"}, 
-            {"atopic dermatitis", "dermatology"}, {"chronic scaly patches", "dermatology"}, {"melanin production disorder", "dermatology"},
+        private Dictionary<string, string> LoadTopicMapFromFile(string filePath)
+        {
+            if (File.Exists(filePath))
+            {
+                string jsonContent = File.ReadAllText(filePath);
+                return JsonSerializer.Deserialize<Dictionary<string, string>>(jsonContent) ?? new Dictionary<string, string>();
+            }
 
-            // Rheumatology Keywords
-            {"inflammation", "rheumatology"}, {"joints", "rheumatology"}, {"bones", "rheumatology"}, {"muscles", "rheumatology"},
-            {"rheumatoid", "rheumatology"}, {"lupus", "rheumatology"}, {"joint pain", "rheumatology"}, {"rheumatology", "rheumatology"},
-            {"gout", "rheumatology"}, {"ankylosing spondylitis", "rheumatology"}, {"psoriatic", "rheumatology"},
-            {"arthritis", "rheumatology"}, {"spine fusion", "rheumatology"},
-
-            // Oncology Keywords
-            {"breast cancer cells", "oncology"}, {"lung cancer due to smoking", "oncology"}, {"oncology", "oncology"},
-            {"lung cancer symptoms", "oncology"}, {"prostate gland cancer", "oncology"}, {"prostate cancer male", "oncology"},
-            {"blood-forming tissues cancer", "oncology"}, {"leukemia affects bone marrow", "oncology"}, {"blood cell cancer", "oncology"},
-            {"melanoma skin pigmentation", "oncology"}, {"skin cancer melanocytes", "oncology"}, {"skin cancer serious", "oncology"},
-
-            // Ophthalmology Keywords
-            {"optic nerve", "ophthalmology"}, {"high eye pressure", "ophthalmology"}, {"cloudy lens", "ophthalmology"}, {"eye", "ophthalmology"},
-            {"lens clouding", "ophthalmology"}, {"retina damage", "ophthalmology"}, {"central vision loss", "ophthalmology"},
-            {"retinal blood vessels", "ophthalmology"}, {"eye blood vessel damage", "ophthalmology"}, {"dry, irritated eyes", "ophthalmology"}, 
-            {"tear film dysfunction", "ophthalmology"}, {"ocular", "ophthalmology"}, {"ophthalmology", "ophthalmology"},
-
-            // Immunology Keywords
-            {"immune", "immunology"}, {"system", "immunology"}, {"immunity", "immunology"}, {"immunology", "immunology"},
-            {"autoimmune", "immunology"}, {"sclerosis", "immunology"}, {"B-cells", "immunology"},
-            {"allergies", "immunology"}, {"pollen", "immunology"}, {"food", "immunology"}, 
-            {"immunodeficiency", "immunology"}, {"vaccination", "immunology"}, {"response", "immunology"}, 
-            {"hypersensitivity", "immunology"}, {"anaphylaxis", "immunology"}, {"immunotherapy", "immunology"}, 
-            {"antibody", "immunology"}, {"immunosuppressive", "immunology"}, {"T-cells", "immunology"},
-
-            // Nephrology Keywords
-            {"kidney", "nephrology"}, {"dialysis", "nephrology"}, {"transplant", "nephrology"}, 
-            {"polycystic", "nephrology"}, {"cysts", "nephrology"}, {"stones", "nephrology"}, 
-            {"nephritis", "nephrology"}, {"glomerulonephritis", "nephrology"}, {"proteinuria", "nephrology"}, 
-            {"artery", "nephrology"}, {"stenosis", "nephrology"}, {"nephropathy", "nephrology"}, 
-            {"nephron", "nephrology"}, {"glomerulus", "nephrology"}, {"electrolyte", "nephrology"}, 
-            {"uremic", "nephrology"}, {"toxins", "nephrology"}, {"diabetic", "nephrology"}, 
-            {"hypertensive", "nephrology"}, {"acute", "nephrology"}, {"nephrology", "nephrology"},
-
-            // Endocrinology Keywords
-            {"chronic", "endocrinology"}, {"insulin", "endocrinology"}, {"glucose", "endocrinology"}, {"pancreas", "endocrinology"},
-            {"adrenal", "endocrinology"}, {"hormonal", "endocrinology"}, {"imbalances", "endocrinology"}, {"reproductive", "endocrinology"},
-            {"abnormal", "endocrinology"}, {"hormone", "endocrinology"}, {"endocrine", "endocrinology"}, {"glands", "endocrinology"},
-            {"pituitary", "endocrinology"}, {"overproduction", "endocrinology"}, {"sugar level", "endocrinology"},
-            {"bone", "endocrinology"}, {"fragility", "endocrinology"}, {"density", "endocrinology"}, {"endocrinology", "endocrinology"},
-            {"thyroid", "endocrinology"}, {"metabolism", "endocrinology"}, {"fractures", "endocrinology"}
-        };
+            Console.WriteLine("File not found. Using default topic map.");
+            return new Dictionary<string, string>();
+        }
 
         private (string, string) PreProcessInput(string input)
         {
@@ -94,6 +36,9 @@ namespace AI_Medical_Chatbot
 
             // Tokenize input to better identify keywords
             string[] tokens = input.Split(' ');
+
+            // lowercase the tokens
+            tokens = tokens.Select(token => token.ToLower()).ToArray();
 
             // Look for keywords in the input
             foreach (var entry in topicMap)
@@ -105,10 +50,9 @@ namespace AI_Medical_Chatbot
                 }
             }
 
-            return (string.Empty, string.Empty); // Return empty if no match is found
+            return (string.Empty, string.Empty);
         }
 
-        // Recognise the and return the topic of the input
         public async Task<string> GenerateResponse(string input)
         {
             var (keyword, topic) = PreProcessInput(input);

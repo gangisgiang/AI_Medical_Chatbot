@@ -9,5 +9,4 @@ namespace AI_Medical_Chatbot
     {
         public abstract void Execute();
     }
-
 }

@@ -7,7 +7,6 @@ namespace AI_Medical_Chatbot
 {
     public static class AIServiceFactory
     {
-        // Factory method to create an AIService based on the topic
         public static IAIResponse CreateAIService(string topic)
         {
             switch (topic.ToLower())

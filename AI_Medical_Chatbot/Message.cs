@@ -16,14 +16,9 @@ namespace AI_Medical_Chatbot
 		
 		public void Sender()
 		{
-			// if the senderid = 0, then the sender is the chatbot
 			if (SenderID == 0)
 			{
 				Console.WriteLine("Chatbot: " + Text);
-			}
-			else
-			{
-				Console.WriteLine("User " + SenderID + ": " + Text);
 			}
 		}
 	}

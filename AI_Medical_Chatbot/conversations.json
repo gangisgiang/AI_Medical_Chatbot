@@ -369,6 +369,11 @@
           "Text": "Nephrology is a specialty for both adult internal medicine and pediatric medicine that concerns the study of the kidneys, specifically normal kidney function (renal physiology) and kidney disease (renal pathophysiology), the preservation of kidney health, and the treatment of kidney disease, from diet and medication to renal replacement therapy (dialysis and kidney transplantation).",
           "SenderID": 0,
           "ReceiverID": 2
+        },
+        {
+          "Text": "eye",
+          "SenderID": 2,
+          "ReceiverID": 0
         }
       ]
     },
@@ -376,6 +381,138 @@
       "ConvoID": "b4451087-7ce6-4b27-9172-69632032fe37",
       "ConvoName": "Conversation (ebea66d1-590c-44f6-996b-19eaca688855)",
       "Messages": []
+    },
+    {
+      "ConvoID": "8da5c1a0-40be-4a6f-a1ca-c41d72085b0e",
+      "ConvoName": "Conversation (c6573972-f8f5-483a-9d0b-ef77a618f70f)",
+      "Messages": [
+        {
+          "Text": "kidney",
+          "SenderID": 2,
+          "ReceiverID": 0
+        },
+        {
+          "Text": "Nephrology is a specialty for both adult internal medicine and pediatric medicine that concerns the study of the kidneys, specifically normal kidney function (renal physiology) and kidney disease (renal pathophysiology), the preservation of kidney health, and the treatment of kidney disease, from diet and medication to renal replacement therapy (dialysis and kidney transplantation).",
+          "SenderID": 0,
+          "ReceiverID": 2
+        },
+        {
+          "Text": "heart",
+          "SenderID": 2,
+          "ReceiverID": 0
+        },
+        {
+          "Text": "Heart health tests include procedures to assess the functioning of the heart and identify potential issues. These tests may include cholesterol checks, blood pressure monitoring, and advanced imaging techniques.",
+          "SenderID": 0,
+          "ReceiverID": 2
+        },
+        {
+          "Text": "eye",
+          "SenderID": 2,
+          "ReceiverID": 0
+        },
+        {
+          "Text": "The practice of ophthalmology provides patients with total eye care. This includes disease prevention; refractive and optical services; diagnosis and management of eye disease; plus medical, surgical, and rehabilitative services.",
+          "SenderID": 0,
+          "ReceiverID": 2
+        }
+      ]
+    },
+    {
+      "ConvoID": "f728e2d4-846d-4845-b3f1-95ec87d4f424",
+      "ConvoName": "Conversation (ba4f745b-fcb6-45f9-876d-a3ab8f7158b8)",
+      "Messages": [
+        {
+          "Text": "dementia",
+          "SenderID": 2,
+          "ReceiverID": 0
+        },
+        {
+          "Text": "Alzheimer\u0027s disease is a progressive neurodegenerative disorder that affects memory, thinking, and behaviour. It is the most common cause of dementia, a condition that interferes with a person\u0027s ability to carry out daily activities. Alzheimer\u0027s disease typically starts with mild memory loss and progresses to severe memory impairment, disorientation, and behavioural changes.",
+          "SenderID": 0,
+          "ReceiverID": 2
+        },
+        {
+          "Text": "dementia",
+          "SenderID": 2,
+          "ReceiverID": 0
+        },
+        {
+          "Text": "Alzheimer\u0027s disease is a progressive neurodegenerative disorder that affects memory, thinking, and behaviour. It is the most common cause of a condition that interferes with a person\u0027s ability to carry out daily activities. Alzheimer\u0027s disease typically starts with mild memory loss and progresses to severe memory impairment, disorientation, and behavioural changes.",
+          "SenderID": 0,
+          "ReceiverID": 2
+        },
+        {
+          "Text": "ba4f745b-fcb6-45f9-876d-a3ab8f7158b8",
+          "SenderID": 2,
+          "ReceiverID": 0
+        },
+        {
+          "Text": "Sorry, I don\u0027t have enough information on that. Can you try rephrasing your question?",
+          "SenderID": 0,
+          "ReceiverID": 2
+        },
+        {
+          "Text": "dementia",
+          "SenderID": 2,
+          "ReceiverID": 0
+        },
+        {
+          "Text": "Alzheimer\u0027s disease is a progressive neurodegenerative disorder that affects memory, thinking, and behaviour. It is the most common cause of a condition that interferes with a person\u0027s ability to carry out daily activities. Alzheimer\u0027s disease typically starts with mild memory loss and progresses to severe memory impairment, disorientation, and behavioural changes.",
+          "SenderID": 0,
+          "ReceiverID": 2
+        },
+        {
+          "Text": "f728e2d4-846d-4845-b3f1-95ec87d4f",
+          "SenderID": 2,
+          "ReceiverID": 0
+        },
+        {
+          "Text": "Sorry, I don\u0027t have enough information on that. Can you try rephrasing your question?",
+          "SenderID": 0,
+          "ReceiverID": 2
+        },
+        {
+          "Text": "dementia",
+          "SenderID": 2,
+          "ReceiverID": 0
+        },
+        {
+          "Text": "Alzheimer\u0027s disease is a progressive neurodegenerative disorder that affects memory, thinking, and behaviour. It is the most common cause of dementia, a condition that interferes with a person\u0027s ability to carry out daily activities. Alzheimer\u0027s disease typically starts with mild memory loss and progresses to severe memory impairment, disorientation, and behavioural changes.",
+          "SenderID": 0,
+          "ReceiverID": 2
+        },
+        {
+          "Text": "dementia",
+          "SenderID": 2,
+          "ReceiverID": 0
+        },
+        {
+          "Text": "Dementia encompasses a group of symptoms affecting memory, thinking, and social abilities.",
+          "SenderID": 0,
+          "ReceiverID": 2
+        },
+        {
+          "Text": "vision problems",
+          "SenderID": 2,
+          "ReceiverID": 0
+        },
+        {
+          "Text": "A brain tumor is an abnormal growth of cells in the brain or surrounding tissues. Brain tumors can be benign (non-cancerous) or malignant (cancerous). Symptoms of a brain tumor vary depending on the size, type, and location of the tumor and can include headaches, seizures, vision problems, and changes in personality or behavior.",
+          "SenderID": 0,
+          "ReceiverID": 2
+        },
+        {
+          "Text": "paralysis",
+          "SenderID": 2,
+          "ReceiverID": 0
+        },
+        {
+          "Text": "Spinal cord injury refers to any damage to the spinal cord that results in a loss of function, such as mobility or sensation. Injuries can be caused by trauma, such as a car accident, or by diseases like cancer or infections. The severity of spinal cord injury depends on where the spine is injured and the extent of the damage.",
+          "SenderID": 0,
+          "ReceiverID": 2
+        }
+      ]
     }
   ],
   "giangne": [
@@ -440,6 +577,48 @@
           "Text": "Sorry, I don\u0027t have enough information on that. Can you try rephrasing your question?",
           "SenderID": 0,
           "ReceiverID": 4
+        }
+      ]
+    },
+    {
+      "ConvoID": "ad9de3ac-3e0b-4bf1-9f03-918cf8f62e9a",
+      "ConvoName": "Conversation (6dfec707-9c38-4830-a788-29248f05cafe)",
+      "Messages": [
+        {
+          "Text": "kidney",
+          "SenderID": 4,
+          "ReceiverID": 0
+        },
+        {
+          "Text": "",
+          "SenderID": 4,
+          "ReceiverID": 0
+        },
+        {
+          "Text": "Sorry, I don\u0027t have enough information on that. Can you try rephrasing your question?",
+          "SenderID": 0,
+          "ReceiverID": 4
+        },
+        {
+          "Text": "",
+          "SenderID": 4,
+          "ReceiverID": 0
+        },
+        {
+          "Text": "Sorry, I don\u0027t have enough information on that. Can you try rephrasing your question?",
+          "SenderID": 0,
+          "ReceiverID": 4
+        }
+      ]
+    },
+    {
+      "ConvoID": "27834ac2-1968-42e8-918c-0f93dd63c67d",
+      "ConvoName": "Conversation (117f0c83-c13f-46d7-ad51-a3dc5eb3c14b)",
+      "Messages": [
+        {
+          "Text": "heart",
+          "SenderID": 4,
+          "ReceiverID": 0
         }
       ]
     }

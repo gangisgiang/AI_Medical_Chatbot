@@ -12,4 +12,4 @@
 /Users/guest1/Documents/OOP/AI_Medical_Chatbot/AI_Medical_Chatbot/obj/Debug/net7.0/AI_Medical_Chatbot.pdb
 /Users/guest1/Documents/OOP/AI_Medical_Chatbot/AI_Medical_Chatbot/obj/Debug/net7.0/AI_Medical_Chatbot.genruntimeconfig.cache
 /Users/guest1/Documents/OOP/AI_Medical_Chatbot/AI_Medical_Chatbot/obj/Debug/net7.0/ref/AI_Medical_Chatbot.dll
-/Users/guest1/Documents/OOP/AI_Medical_Chatbot/AI_Medical_Chatbot/obj/Debug/net7.0/AI_Medical_Chatbot.sourcelink.json
+/Users/guest1/Documents/OOP/AI_Medical_Chatbot/AI_Medical_Chatbot/obj/Debug/net7.0/AI_Medical_Chatbot.csproj.AssemblyReference.cache
